@@ -8,11 +8,11 @@ It lets you describe requirements for a capability type, evaluate a capability i
 
 ReqCap is built around a few simple concepts:
 
-- **Capability** — a type that describes what something can provide.
-- **Requirement** — a set of rules that a capability should satisfy.
-- **Rule** — a single condition evaluated against a capability.
-- **Group** — a logical composition of rules using `AND` or `OR`.
-- **Evaluation result** — the outcome, including blocking errors and non-blocking warnings.
+- **Capability**: a type that describes what something can provide.
+- **Requirement**: a set of rules that a capability should satisfy.
+- **Rule**: a single condition evaluated against a capability.
+- **Group**: a logical composition of rules using `AND` or `OR`.
+- **Evaluation result**: the outcome, including blocking errors and non-blocking warnings.
 
 ## Installation
 
