@@ -1,38 +1,140 @@
-
 using FluentAssertions;
-using ReqCap.Models;
+using ReqCap.Results;
 using ReqCap.Rules;
-using Xunit;
+using ReqCap.Tests.Fixtures;
+using System.Linq.Expressions;
 
 namespace ReqCap.Tests.Unit.Rules;
 
-public class ComparisonRuleTests
-{
-    private class Cap : ICapability { public int Value { get; set; } }
+public class ComparisonRuleTests {
+    [Theory]
+    [InlineData(10, ComparisonOperator.GreaterOrEqual, 10, true)]
+    [InlineData(11, ComparisonOperator.GreaterThan, 10, true)]
+    [InlineData(10, ComparisonOperator.LessOrEqual, 10, true)]
+    [InlineData(9, ComparisonOperator.LessThan, 10, true)]
+    [InlineData(10, ComparisonOperator.Equal, 10, true)]
+    [InlineData(11, ComparisonOperator.NotEqual, 10, true)]
+    [InlineData(9, ComparisonOperator.GreaterOrEqual, 10, false)]
+    [InlineData(10, ComparisonOperator.GreaterThan, 10, false)]
+    [InlineData(11, ComparisonOperator.LessOrEqual, 10, false)]
+    [InlineData(10, ComparisonOperator.LessThan, 10, false)]
+    [InlineData(11, ComparisonOperator.Equal, 10, false)]
+    [InlineData(10, ComparisonOperator.NotEqual, 10, false)]
+    public void Evaluate_WithDecimalCapabilityOperator_ReturnsExpectedResult(
+        int actual,
+        ComparisonOperator op,
+        int expected,
+        bool allowed) {
+        var rule = new ComparisonRule<DecimalCapability, decimal>(
+            x => x.Value,
+            expected,
+            op,
+            RequirementSeverity.Error);
+
+        var result = rule.Evaluate(new DecimalCapability { Value = actual });
+
+        result.Allowed.Should().Be(allowed);
+    }
 
     [Fact]
-    public void Evaluate_WhenGreaterOrEqualPasses_ShouldBeAllowed()
-    {
-        var rule = new ComparisonRule<Cap, int>(x => x.Value, 10, ComparisonOperator.GreaterOrEqual, RequirementSeverity.Error);
-        var result = rule.Evaluate(new Cap { Value = 15 });
+    public void Evaluate_WhenStringEqualPasses_ReturnsAllowed() {
+        var rule = new ComparisonRule<StringCapability, string>(
+            x => x.Value,
+            "Soil",
+            ComparisonOperator.Equal,
+            RequirementSeverity.Error);
+
+        var result = rule.Evaluate(new StringCapability { Value = "Soil" });
+
         result.Allowed.Should().BeTrue();
     }
 
     [Fact]
-    public void Evaluate_WhenFails_ShouldReturnError()
-    {
-        var rule = new ComparisonRule<Cap, int>(x => x.Value, 10, ComparisonOperator.GreaterOrEqual, RequirementSeverity.Error);
-        var result = rule.Evaluate(new Cap { Value = 5 });
+    public void Evaluate_WhenBooleanEqualPasses_ReturnsAllowed() {
+        var rule = new ComparisonRule<BooleanCapability, bool>(
+            x => x.Value,
+            true,
+            ComparisonOperator.Equal,
+            RequirementSeverity.Error);
+
+        var result = rule.Evaluate(new BooleanCapability { Value = true });
+
+        result.Allowed.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Evaluate_WhenRuleFails_IncludesRuleMetadataAndCustomMessage() {
+        var rule = new ComparisonRule<DecimalCapability, decimal>(
+            x => x.Value,
+            10m,
+            ComparisonOperator.GreaterOrEqual,
+            RequirementSeverity.Error,
+            "MinimumValue",
+            "cap.value.min",
+            "Value is too small.");
+
+        var result = rule.Evaluate(new DecimalCapability { Value = 5m });
+
+        result.Errors.Should().ContainSingle();
+        result.Errors[0].RuleName.Should().Be("MinimumValue");
+        result.Errors[0].RuleAlias.Should().Be("cap.value.min");
+        result.Errors[0].Message.Should().Be("Value is too small.");
+    }
+
+    [Fact]
+    public void Evaluate_WhenNestedPropertyFails_UsesFullPropertyPath() {
+        var rule = new ComparisonRule<LocationCapability, decimal>(
+            x => x.Coordinate!.Latitude,
+            49m,
+            ComparisonOperator.GreaterOrEqual,
+            RequirementSeverity.Error);
+
+        var result = rule.Evaluate(new LocationCapability {
+            Coordinate = new Coordinate { Latitude = 48m, Longitude = 18m },
+        });
+
+        result.Errors.Should().ContainSingle();
+        result.Errors[0].Property.Should().Be("Coordinate.Latitude");
+    }
+
+    [Fact]
+    public void Evaluate_WhenNestedObjectIsNull_ReturnsIssue() {
+        var rule = new ComparisonRule<LocationCapability, decimal>(
+            x => x.Coordinate!.Latitude,
+            49m,
+            ComparisonOperator.GreaterOrEqual,
+            RequirementSeverity.Error);
+
+        var result = rule.Evaluate(new LocationCapability { Coordinate = null });
+
         result.Allowed.Should().BeFalse();
-        result.Errors.Should().HaveCount(1);
+        result.Errors.Should().ContainSingle();
+        result.Errors[0].Property.Should().Be("Coordinate.Latitude");
     }
 
     [Fact]
-    public void Evaluate_WhenWarning_ShouldNotBlock()
-    {
-        var rule = new ComparisonRule<Cap, int>(x => x.Value, 10, ComparisonOperator.GreaterOrEqual, RequirementSeverity.Warning);
-        var result = rule.Evaluate(new Cap { Value = 5 });
-        result.Allowed.Should().BeTrue();
-        result.Warnings.Should().HaveCount(1);
+    public void Evaluate_WhenOperatorIsUnsupported_ReturnsError() {
+        var rule = new ComparisonRule<DecimalCapability, decimal>(
+            x => x.Value,
+            10m,
+            (ComparisonOperator)999,
+            RequirementSeverity.Error);
+
+        var result = rule.Evaluate(new DecimalCapability { Value = 10m });
+
+        result.Allowed.Should().BeFalse();
+    }
+
+    [Fact]
+    public void Constructor_WhenExpressionIsNotMemberAccess_ThrowsArgumentException() {
+        Expression<Func<DecimalCapability, decimal>> expression = x => x.Value + 1;
+
+        var act = () => new ComparisonRule<DecimalCapability, decimal>(
+            expression,
+            10m,
+            ComparisonOperator.GreaterOrEqual,
+            RequirementSeverity.Error);
+
+        act.Should().Throw<ArgumentException>();
     }
 }
