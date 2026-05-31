@@ -1,7 +1,7 @@
 namespace ReqCap.Results;
 
 /// <summary>
-/// Describes a failed rule or warning produced by evaluation.
+/// Describes an error or warning produced by evaluation.
 /// </summary>
 public sealed class Issue
 {

@@ -16,9 +16,7 @@ public static class Evaluator
     /// <param name="capability">The capability instance.</param>
     /// <param name="requirement">The requirement to evaluate.</param>
     /// <returns>The evaluation result.</returns>
-    public static EvaluationResult Evaluate<TCapability>(
-        TCapability capability,
-        Requirement<TCapability> requirement)
+    public static EvaluationResult Evaluate<TCapability>(TCapability capability, Requirement<TCapability> requirement)
         where TCapability : ICapability
     {
         ArgumentNullException.ThrowIfNull(requirement);
@@ -29,12 +27,7 @@ public static class Evaluator
         foreach (var rule in requirement.Rules)
         {
             var result = rule.Evaluate(capability);
-
-            if (!result.Allowed)
-            {
-                errors.AddRange(result.Errors);
-            }
-
+            errors.AddRange(result.Errors);
             warnings.AddRange(result.Warnings);
         }
 

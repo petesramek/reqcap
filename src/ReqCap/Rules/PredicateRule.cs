@@ -4,7 +4,7 @@ using ReqCap.Results;
 namespace ReqCap.Rules;
 
 /// <summary>
-/// Represents a custom predicate-based rule for a capability.
+/// Represents a custom predicate-based issue condition for a capability.
 /// </summary>
 /// <typeparam name="TCapability">The capability type evaluated by the rule.</typeparam>
 public sealed class PredicateRule<TCapability> : IRule<TCapability>
@@ -20,10 +20,10 @@ public sealed class PredicateRule<TCapability> : IRule<TCapability>
     /// Initializes a new instance of the <see cref="PredicateRule{TCapability}"/> class.
     /// </summary>
     /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate used to evaluate the capability.</param>
-    /// <param name="severity">The severity used when the rule fails.</param>
+    /// <param name="predicate">The predicate that returns true when the issue should be produced.</param>
+    /// <param name="severity">The severity used when the predicate returns true.</param>
     /// <param name="alias">An optional external alias for the rule.</param>
-    /// <param name="message">An optional failure message.</param>
+    /// <param name="message">An optional issue message.</param>
     public PredicateRule(
         string name,
         Func<TCapability, bool> predicate,
@@ -44,20 +44,18 @@ public sealed class PredicateRule<TCapability> : IRule<TCapability>
     /// <inheritdoc />
     public EvaluationResult Evaluate(TCapability capability)
     {
-        if (_predicate(capability))
+        if (!_predicate(capability))
         {
             return EvaluationResult.Ok();
         }
 
-        var issue = new Issue
+        return EvaluationResult.FromIssue(new Issue
         {
             Property = string.Empty,
-            Message = _message ?? $"Rule '{_name}' failed.",
+            Message = _message ?? $"Rule '{_name}' matched.",
             Severity = _severity,
             RuleName = _name,
             RuleAlias = _alias,
-        };
-
-        return EvaluationResult.FromIssue(issue);
+        });
     }
 }

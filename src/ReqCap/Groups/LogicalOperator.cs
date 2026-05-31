@@ -6,12 +6,12 @@ namespace ReqCap.Groups;
 public enum LogicalOperator
 {
     /// <summary>
-    /// All child rules or groups must pass.
+    /// All child rules or groups are evaluated.
     /// </summary>
     And,
 
     /// <summary>
-    /// At least one child rule or group must pass.
+    /// At least one child rule or group must be allowed.
     /// </summary>
     Or,
 }

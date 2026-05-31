@@ -57,12 +57,7 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
         foreach (var rule in _rules)
         {
             var result = rule.Evaluate(capability);
-
-            if (!result.Allowed)
-            {
-                errors.AddRange(result.Errors);
-            }
-
+            errors.AddRange(result.Errors);
             warnings.AddRange(result.Warnings);
         }
 
@@ -78,21 +73,18 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
 
     private EvaluationResult EvaluateOr(TCapability capability)
     {
-        foreach (var rule in _rules)
-        {
-            var result = rule.Evaluate(capability);
-            if (result.Allowed)
-            {
-                return EvaluationResult.Ok();
-            }
-        }
-
         var errors = new List<Issue>();
         var warnings = new List<Issue>();
 
         foreach (var rule in _rules)
         {
             var result = rule.Evaluate(capability);
+
+            if (result.Allowed)
+            {
+                return EvaluationResult.Ok();
+            }
+
             errors.AddRange(result.Errors);
             warnings.AddRange(result.Warnings);
         }

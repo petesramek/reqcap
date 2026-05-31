@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using ReqCap.Abstractions;
 using ReqCap.Results;
 using ReqCap.Rules;
@@ -6,75 +5,99 @@ using ReqCap.Rules;
 namespace ReqCap.Builder;
 
 /// <summary>
-/// Finalizes a rule by assigning severity and metadata.
+/// Finalizes a requirement property issue condition by assigning severity and metadata.
 /// </summary>
 /// <typeparam name="TCapability">The capability type.</typeparam>
 /// <typeparam name="TProperty">The property type.</typeparam>
-/// <typeparam name="TNext">The builder type returned after the rule is finalized.</typeparam>
-public sealed class SeverityBuilder<TCapability, TProperty, TNext>
+public sealed class RequirementSeverityBuilder<TCapability, TProperty>
     where TCapability : ICapability
     where TProperty : IComparable<TProperty>
 {
-    private readonly Expression<Func<TCapability, TProperty>> _expression;
+    private readonly RequirementPropertyBuilder<TCapability, TProperty> _property;
     private readonly TProperty _value;
     private readonly ComparisonOperator _operator;
-    private readonly Func<IRule<TCapability>, TNext> _addRule;
-    private readonly Func<TNext> _next;
 
-    internal SeverityBuilder(
-        Expression<Func<TCapability, TProperty>> expression,
+    internal RequirementSeverityBuilder(
+        RequirementPropertyBuilder<TCapability, TProperty> property,
         TProperty value,
-        ComparisonOperator op,
-        Func<IRule<TCapability>, TNext> addRule,
-        Func<TNext> next)
+        ComparisonOperator op)
     {
-        _expression = expression;
+        _property = property;
         _value = value;
         _operator = op;
-        _addRule = addRule;
-        _next = next;
     }
 
     /// <summary>
-    /// Creates an error rule.
+    /// Creates an error condition.
     /// </summary>
-    /// <param name="name">The optional rule name.</param>
-    /// <param name="alias">The optional rule alias.</param>
-    /// <param name="message">The optional failure message.</param>
-    /// <returns>The next builder.</returns>
-    public TNext AsError(string? name = null, string? alias = null, string? message = null)
+    public RequirementPropertyBuilder<TCapability, TProperty> AsError(string? name = null, string? alias = null, string? message = null)
     {
-        return AddComparisonRule(RequirementSeverity.Error, name, alias, message);
+        return AddCondition(RequirementSeverity.Error, name, alias, message);
     }
 
     /// <summary>
-    /// Creates a warning rule.
+    /// Creates a warning condition.
     /// </summary>
-    /// <param name="name">The optional rule name.</param>
-    /// <param name="alias">The optional rule alias.</param>
-    /// <param name="message">The optional failure message.</param>
-    /// <returns>The next builder.</returns>
-    public TNext AsWarning(string? name = null, string? alias = null, string? message = null)
+    public RequirementPropertyBuilder<TCapability, TProperty> AsWarning(string? name = null, string? alias = null, string? message = null)
     {
-        return AddComparisonRule(RequirementSeverity.Warning, name, alias, message);
+        return AddCondition(RequirementSeverity.Warning, name, alias, message);
     }
 
-    private TNext AddComparisonRule(
+    private RequirementPropertyBuilder<TCapability, TProperty> AddCondition(
         RequirementSeverity severity,
         string? name,
         string? alias,
         string? message)
     {
-        var rule = new ComparisonRule<TCapability, TProperty>(
-            _expression,
-            _value,
-            _operator,
-            severity,
-            name,
-            alias,
-            message);
+        return _property.AddCondition(new PropertyCondition<TProperty>(_operator, _value, severity, name, alias, message));
+    }
+}
 
-        _addRule(rule);
-        return _next();
+/// <summary>
+/// Finalizes a group property issue condition by assigning severity and metadata.
+/// </summary>
+/// <typeparam name="TCapability">The capability type.</typeparam>
+/// <typeparam name="TProperty">The property type.</typeparam>
+public sealed class GroupSeverityBuilder<TCapability, TProperty>
+    where TCapability : ICapability
+    where TProperty : IComparable<TProperty>
+{
+    private readonly GroupPropertyBuilder<TCapability, TProperty> _property;
+    private readonly TProperty _value;
+    private readonly ComparisonOperator _operator;
+
+    internal GroupSeverityBuilder(
+        GroupPropertyBuilder<TCapability, TProperty> property,
+        TProperty value,
+        ComparisonOperator op)
+    {
+        _property = property;
+        _value = value;
+        _operator = op;
+    }
+
+    /// <summary>
+    /// Creates an error condition.
+    /// </summary>
+    public GroupPropertyBuilder<TCapability, TProperty> AsError(string? name = null, string? alias = null, string? message = null)
+    {
+        return AddCondition(RequirementSeverity.Error, name, alias, message);
+    }
+
+    /// <summary>
+    /// Creates a warning condition.
+    /// </summary>
+    public GroupPropertyBuilder<TCapability, TProperty> AsWarning(string? name = null, string? alias = null, string? message = null)
+    {
+        return AddCondition(RequirementSeverity.Warning, name, alias, message);
+    }
+
+    private GroupPropertyBuilder<TCapability, TProperty> AddCondition(
+        RequirementSeverity severity,
+        string? name,
+        string? alias,
+        string? message)
+    {
+        return _property.AddCondition(new PropertyCondition<TProperty>(_operator, _value, severity, name, alias, message));
     }
 }

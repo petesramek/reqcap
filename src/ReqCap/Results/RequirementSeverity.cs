@@ -1,17 +1,17 @@
 namespace ReqCap.Results;
 
 /// <summary>
-/// Defines how a failed rule affects evaluation.
+/// Defines how a matched issue condition affects evaluation.
 /// </summary>
 public enum RequirementSeverity
 {
     /// <summary>
-    /// A blocking failure.
+    /// The matched issue condition blocks evaluation.
     /// </summary>
     Error,
 
     /// <summary>
-    /// A non-blocking failure.
+    /// The matched issue condition is reported but does not block evaluation.
     /// </summary>
     Warning,
 }

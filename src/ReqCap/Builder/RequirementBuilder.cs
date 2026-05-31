@@ -24,19 +24,18 @@ public sealed class RequirementBuilder<TCapability>
     public RequirementBuilder<TCapability> AddRule(IRule<TCapability> rule)
     {
         ArgumentNullException.ThrowIfNull(rule);
-
         _rules.Add(rule);
         return this;
     }
 
     /// <summary>
-    /// Adds a custom predicate rule.
+    /// Adds a custom predicate issue condition.
     /// </summary>
     /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate used to evaluate the capability.</param>
-    /// <param name="severity">The severity used when the rule fails.</param>
+    /// <param name="predicate">The predicate that returns true when the issue should be produced.</param>
+    /// <param name="severity">The severity used when the predicate returns true.</param>
     /// <param name="alias">An optional external alias for the rule.</param>
-    /// <param name="message">An optional failure message.</param>
+    /// <param name="message">An optional issue message.</param>
     /// <returns>The current requirement builder.</returns>
     public RequirementBuilder<TCapability> Rule(
         string name,
@@ -49,19 +48,16 @@ public sealed class RequirementBuilder<TCapability>
     }
 
     /// <summary>
-    /// Starts a comparable property rule.
+    /// Starts an ordered issue-condition chain for a comparable property.
     /// </summary>
     /// <typeparam name="TProperty">The property type.</typeparam>
     /// <param name="expression">The property expression.</param>
-    /// <returns>A property rule builder.</returns>
-    public PropertyBuilder<TCapability, TProperty, RequirementBuilder<TCapability>> Property<TProperty>(
+    /// <returns>A property chain builder.</returns>
+    public RequirementPropertyBuilder<TCapability, TProperty> Property<TProperty>(
         Expression<Func<TCapability, TProperty>> expression)
         where TProperty : IComparable<TProperty>
     {
-        return new PropertyBuilder<TCapability, TProperty, RequirementBuilder<TCapability>>(
-            expression,
-            AddRule,
-            () => this);
+        return new RequirementPropertyBuilder<TCapability, TProperty>(this, expression);
     }
 
     /// <summary>
@@ -74,7 +70,6 @@ public sealed class RequirementBuilder<TCapability>
     public RequirementBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ArgumentNullException.ThrowIfNull(build);
-
         var group = new RuleGroup<TCapability>(LogicalOperator.And, name, alias);
         build(new GroupBuilder<TCapability>(group));
         return AddRule(group);
@@ -90,7 +85,6 @@ public sealed class RequirementBuilder<TCapability>
     public RequirementBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ArgumentNullException.ThrowIfNull(build);
-
         var group = new RuleGroup<TCapability>(LogicalOperator.Or, name, alias);
         build(new GroupBuilder<TCapability>(group));
         return AddRule(group);

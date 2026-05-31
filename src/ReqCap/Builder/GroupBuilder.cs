@@ -32,13 +32,13 @@ public sealed class GroupBuilder<TCapability>
     }
 
     /// <summary>
-    /// Adds a custom predicate rule to the group.
+    /// Adds a custom predicate issue condition to the group.
     /// </summary>
     /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate used to evaluate the capability.</param>
-    /// <param name="severity">The severity used when the rule fails.</param>
+    /// <param name="predicate">The predicate that returns true when the issue should be produced.</param>
+    /// <param name="severity">The severity used when the predicate returns true.</param>
     /// <param name="alias">An optional external alias for the rule.</param>
-    /// <param name="message">An optional failure message.</param>
+    /// <param name="message">An optional issue message.</param>
     /// <returns>The current group builder.</returns>
     public GroupBuilder<TCapability> Rule(
         string name,
@@ -51,19 +51,16 @@ public sealed class GroupBuilder<TCapability>
     }
 
     /// <summary>
-    /// Starts a comparable property rule inside the group.
+    /// Starts an ordered issue-condition chain for a comparable property.
     /// </summary>
     /// <typeparam name="TProperty">The property type.</typeparam>
     /// <param name="expression">The property expression.</param>
-    /// <returns>A property rule builder.</returns>
-    public PropertyBuilder<TCapability, TProperty, GroupBuilder<TCapability>> Property<TProperty>(
+    /// <returns>A property chain builder.</returns>
+    public GroupPropertyBuilder<TCapability, TProperty> Property<TProperty>(
         Expression<Func<TCapability, TProperty>> expression)
         where TProperty : IComparable<TProperty>
     {
-        return new PropertyBuilder<TCapability, TProperty, GroupBuilder<TCapability>>(
-            expression,
-            AddRule,
-            () => this);
+        return new GroupPropertyBuilder<TCapability, TProperty>(this, expression);
     }
 
     /// <summary>
@@ -76,7 +73,6 @@ public sealed class GroupBuilder<TCapability>
     public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ArgumentNullException.ThrowIfNull(build);
-
         var group = new RuleGroup<TCapability>(LogicalOperator.And, name, alias);
         build(new GroupBuilder<TCapability>(group));
         return AddRule(group);
@@ -92,7 +88,6 @@ public sealed class GroupBuilder<TCapability>
     public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ArgumentNullException.ThrowIfNull(build);
-
         var group = new RuleGroup<TCapability>(LogicalOperator.Or, name, alias);
         build(new GroupBuilder<TCapability>(group));
         return AddRule(group);
