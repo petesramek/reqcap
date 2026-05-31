@@ -3,7 +3,6 @@ using ReqCap.Abstractions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Results;
-using Xunit;
 
 namespace ReqCap.Tests.Integration;
 
@@ -18,6 +17,27 @@ public class CompositeRequirementScenarioTests
         public bool Enabled { get; init; }
     }
 
+    private sealed class AlwaysFailRule : IRule<CompositeCapability>
+    {
+        public EvaluationResult Evaluate(CompositeCapability capability)
+        {
+            return new EvaluationResult
+            {
+                Allowed = false,
+                Errors =
+                [
+                    new Issue
+                    {
+                        Property = string.Empty,
+                        Message = "Failed",
+                        Severity = RequirementSeverity.Error,
+                        RuleName = "AlwaysFail",
+                    },
+                ],
+            };
+        }
+    }
+
     [Fact]
     public void Evaluate_WhenAndGroupAllRulesPass_ReturnsAllowed()
     {
@@ -25,27 +45,14 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .And("ContainerRules", group =>
             {
-                group.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsError("MinimumVolume");
-
-                group.Property(x => x.Material)
-                    .Equal("Plastic")
-                    .AsError("RequiredMaterial");
-
-                group.Property(x => x.Enabled)
-                    .Equal(true)
-                    .AsError("MustBeEnabled");
+                group.Property(x => x.Volume).GreaterOrEqual(10m).AsError("MinimumVolume");
+                group.Property(x => x.Material).Equal("Plastic").AsError("RequiredMaterial");
+                group.Property(x => x.Enabled).Equal(true).AsError("MustBeEnabled");
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 10m,
-                Material = "Plastic",
-                Enabled = true,
-            },
+            new CompositeCapability { Volume = 10m, Material = "Plastic", Enabled = true },
             requirement);
 
         result.Allowed.Should().BeTrue();
@@ -60,27 +67,14 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .And("ContainerRules", group =>
             {
-                group.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsError("MinimumVolume");
-
-                group.Property(x => x.Material)
-                    .Equal("Plastic")
-                    .AsError("RequiredMaterial");
-
-                group.Property(x => x.Enabled)
-                    .Equal(true)
-                    .AsError("MustBeEnabled");
+                group.Property(x => x.Volume).GreaterOrEqual(10m).AsError("MinimumVolume");
+                group.Property(x => x.Material).Equal("Plastic").AsError("RequiredMaterial");
+                group.Property(x => x.Enabled).Equal(true).AsError("MustBeEnabled");
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 5m,
-                Material = "Metal",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 5m, Material = "Metal", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeFalse();
@@ -95,23 +89,13 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .Or("AllowedContainer", group =>
             {
-                group.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsError("MinimumVolume");
-
-                group.Property(x => x.Material)
-                    .Equal("Plastic")
-                    .AsError("RequiredMaterial");
+                group.Property(x => x.Volume).GreaterOrEqual(10m).AsError("MinimumVolume");
+                group.Property(x => x.Material).Equal("Plastic").AsError("RequiredMaterial");
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 12m,
-                Material = "Metal",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 12m, Material = "Metal", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeTrue();
@@ -125,23 +109,13 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .Or("AllowedContainer", group =>
             {
-                group.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsError("MinimumVolume");
-
-                group.Property(x => x.Material)
-                    .Equal("Plastic")
-                    .AsError("RequiredMaterial");
+                group.Property(x => x.Volume).GreaterOrEqual(10m).AsError("MinimumVolume");
+                group.Property(x => x.Material).Equal("Plastic").AsError("RequiredMaterial");
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 5m,
-                Material = "Metal",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 5m, Material = "Metal", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeFalse();
@@ -156,30 +130,17 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .And("Root", root =>
             {
-                root.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsError("MinimumVolume");
-
+                root.Property(x => x.Volume).GreaterOrEqual(10m).AsError("MinimumVolume");
                 root.Or("AllowedMaterials", material =>
                 {
-                    material.Property(x => x.Material)
-                        .Equal("Plastic")
-                        .AsError("PlasticAllowed");
-
-                    material.Property(x => x.Material)
-                        .Equal("Ceramic")
-                        .AsError("CeramicAllowed");
+                    material.Property(x => x.Material).Equal("Plastic").AsError("PlasticAllowed");
+                    material.Property(x => x.Material).Equal("Ceramic").AsError("CeramicAllowed");
                 });
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 10m,
-                Material = "Ceramic",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 10m, Material = "Ceramic", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeTrue();
@@ -193,30 +154,17 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .And("Root", root =>
             {
-                root.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsError("MinimumVolume");
-
+                root.Property(x => x.Volume).GreaterOrEqual(10m).AsError("MinimumVolume");
                 root.Or("AllowedMaterials", material =>
                 {
-                    material.Property(x => x.Material)
-                        .Equal("Plastic")
-                        .AsError("PlasticAllowed");
-
-                    material.Property(x => x.Material)
-                        .Equal("Ceramic")
-                        .AsError("CeramicAllowed");
+                    material.Property(x => x.Material).Equal("Plastic").AsError("PlasticAllowed");
+                    material.Property(x => x.Material).Equal("Ceramic").AsError("CeramicAllowed");
                 });
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 10m,
-                Material = "Metal",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 10m, Material = "Metal", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeFalse();
@@ -231,23 +179,13 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .And("Recommendations", group =>
             {
-                group.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsWarning("RecommendedVolume");
-
-                group.Property(x => x.Enabled)
-                    .Equal(true)
-                    .AsWarning("RecommendedEnabled");
+                group.Property(x => x.Volume).GreaterOrEqual(10m).AsWarning("RecommendedVolume");
+                group.Property(x => x.Enabled).Equal(true).AsWarning("RecommendedEnabled");
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 5m,
-                Material = "Plastic",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 5m, Material = "Plastic", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeTrue();
@@ -263,23 +201,13 @@ public class CompositeRequirementScenarioTests
             .For<CompositeCapability>()
             .And("Mixed", group =>
             {
-                group.Property(x => x.Volume)
-                    .GreaterOrEqual(10m)
-                    .AsWarning("RecommendedVolume");
-
-                group.Property(x => x.Enabled)
-                    .Equal(true)
-                    .AsError("RequiredEnabled");
+                group.Property(x => x.Volume).GreaterOrEqual(10m).AsWarning("RecommendedVolume");
+                group.Property(x => x.Enabled).Equal(true).AsError("RequiredEnabled");
             })
             .Build();
 
         var result = Evaluator.Evaluate(
-            new CompositeCapability
-            {
-                Volume = 5m,
-                Material = "Plastic",
-                Enabled = false,
-            },
+            new CompositeCapability { Volume = 5m, Material = "Plastic", Enabled = false },
             requirement);
 
         result.Allowed.Should().BeFalse();
@@ -287,5 +215,46 @@ public class CompositeRequirementScenarioTests
         result.Warnings.Should().ContainSingle();
         result.Errors[0].GroupName.Should().Be("Mixed");
         result.Warnings[0].GroupName.Should().Be("Mixed");
+    }
+
+    [Fact]
+    public void Evaluate_WhenRootPredicateRuleFails_ReturnsError()
+    {
+        var requirement = Requirement
+            .For<CompositeCapability>()
+            .Rule(
+                "EnabledPlastic",
+                x => x.Enabled && x.Material == "Plastic",
+                RequirementSeverity.Error,
+                alias: "composite.enabled-plastic",
+                message: "Capability must be enabled plastic.")
+            .Build();
+
+        var result = Evaluator.Evaluate(
+            new CompositeCapability { Volume = 10m, Material = "Metal", Enabled = true },
+            requirement);
+
+        result.Allowed.Should().BeFalse();
+        result.Errors[0].RuleName.Should().Be("EnabledPlastic");
+        result.Errors[0].RuleAlias.Should().Be("composite.enabled-plastic");
+        result.Errors[0].Message.Should().Be("Capability must be enabled plastic.");
+    }
+
+    [Fact]
+    public void Evaluate_WhenCustomRuleInstanceInsideGroupFails_ReturnsTaggedError()
+    {
+        var requirement = Requirement
+            .For<CompositeCapability>()
+            .And("CustomGroup", group =>
+            {
+                group.AddRule(new AlwaysFailRule());
+            })
+            .Build();
+
+        var result = Evaluator.Evaluate(new CompositeCapability(), requirement);
+
+        result.Allowed.Should().BeFalse();
+        result.Errors.Should().ContainSingle();
+        result.Errors[0].GroupName.Should().Be("CustomGroup");
     }
 }

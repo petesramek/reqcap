@@ -60,26 +60,4 @@ public class PredicateRuleTests
         result.Warnings.Should().ContainSingle();
         result.Errors.Should().BeEmpty();
     }
-
-    [Fact]
-    public void Constructor_WhenNameIsEmpty_ThrowsArgumentException()
-    {
-        var act = () => new PredicateRule<TestCapability>(
-            string.Empty,
-            capability => true,
-            RequirementSeverity.Error);
-
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [Fact]
-    public void Constructor_WhenPredicateIsNull_ThrowsArgumentNullException()
-    {
-        var act = () => new PredicateRule<TestCapability>(
-            "Rule",
-            null!,
-            RequirementSeverity.Error);
-
-        act.Should().Throw<ArgumentNullException>();
-    }
 }

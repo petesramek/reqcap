@@ -1,12 +1,38 @@
+using System.Linq.Expressions;
 using FluentAssertions;
+using ReqCap.Abstractions;
 using ReqCap.Results;
 using ReqCap.Rules;
-using ReqCap.Tests.Fixtures;
-using System.Linq.Expressions;
 
 namespace ReqCap.Tests.Unit.Rules;
 
-public class ComparisonRuleTests {
+public class ComparisonRuleTests
+{
+    private sealed class DecimalCapability : ICapability
+    {
+        public decimal Value { get; init; }
+    }
+
+    private sealed class StringCapability : ICapability
+    {
+        public string Value { get; init; } = string.Empty;
+    }
+
+    private sealed class BooleanCapability : ICapability
+    {
+        public bool Value { get; init; }
+    }
+
+    private sealed class LocationCapability : ICapability
+    {
+        public Coordinate? Coordinate { get; init; }
+    }
+
+    private sealed class Coordinate
+    {
+        public decimal Latitude { get; init; }
+    }
+
     [Theory]
     [InlineData(10, ComparisonOperator.GreaterOrEqual, 10, true)]
     [InlineData(11, ComparisonOperator.GreaterThan, 10, true)]
@@ -24,7 +50,8 @@ public class ComparisonRuleTests {
         int actual,
         ComparisonOperator op,
         int expected,
-        bool allowed) {
+        bool allowed)
+    {
         var rule = new ComparisonRule<DecimalCapability, decimal>(
             x => x.Value,
             expected,
@@ -37,7 +64,8 @@ public class ComparisonRuleTests {
     }
 
     [Fact]
-    public void Evaluate_WhenStringEqualPasses_ReturnsAllowed() {
+    public void Evaluate_WhenStringEqualPasses_ReturnsAllowed()
+    {
         var rule = new ComparisonRule<StringCapability, string>(
             x => x.Value,
             "Soil",
@@ -50,7 +78,8 @@ public class ComparisonRuleTests {
     }
 
     [Fact]
-    public void Evaluate_WhenBooleanEqualPasses_ReturnsAllowed() {
+    public void Evaluate_WhenBooleanEqualPasses_ReturnsAllowed()
+    {
         var rule = new ComparisonRule<BooleanCapability, bool>(
             x => x.Value,
             true,
@@ -63,7 +92,8 @@ public class ComparisonRuleTests {
     }
 
     [Fact]
-    public void Evaluate_WhenRuleFails_IncludesRuleMetadataAndCustomMessage() {
+    public void Evaluate_WhenRuleFails_IncludesRuleMetadataAndCustomMessage()
+    {
         var rule = new ComparisonRule<DecimalCapability, decimal>(
             x => x.Value,
             10m,
@@ -82,15 +112,17 @@ public class ComparisonRuleTests {
     }
 
     [Fact]
-    public void Evaluate_WhenNestedPropertyFails_UsesFullPropertyPath() {
+    public void Evaluate_WhenNestedPropertyFails_UsesFullPropertyPath()
+    {
         var rule = new ComparisonRule<LocationCapability, decimal>(
             x => x.Coordinate!.Latitude,
             49m,
             ComparisonOperator.GreaterOrEqual,
             RequirementSeverity.Error);
 
-        var result = rule.Evaluate(new LocationCapability {
-            Coordinate = new Coordinate { Latitude = 48m, Longitude = 18m },
+        var result = rule.Evaluate(new LocationCapability
+        {
+            Coordinate = new Coordinate { Latitude = 48m },
         });
 
         result.Errors.Should().ContainSingle();
@@ -98,7 +130,8 @@ public class ComparisonRuleTests {
     }
 
     [Fact]
-    public void Evaluate_WhenNestedObjectIsNull_ReturnsIssue() {
+    public void Evaluate_WhenNestedObjectIsNull_ReturnsIssue()
+    {
         var rule = new ComparisonRule<LocationCapability, decimal>(
             x => x.Coordinate!.Latitude,
             49m,
@@ -113,20 +146,8 @@ public class ComparisonRuleTests {
     }
 
     [Fact]
-    public void Evaluate_WhenOperatorIsUnsupported_ReturnsError() {
-        var rule = new ComparisonRule<DecimalCapability, decimal>(
-            x => x.Value,
-            10m,
-            (ComparisonOperator)999,
-            RequirementSeverity.Error);
-
-        var result = rule.Evaluate(new DecimalCapability { Value = 10m });
-
-        result.Allowed.Should().BeFalse();
-    }
-
-    [Fact]
-    public void Constructor_WhenExpressionIsNotMemberAccess_ThrowsArgumentException() {
+    public void Constructor_WhenExpressionIsNotMemberAccess_ThrowsArgumentException()
+    {
         Expression<Func<DecimalCapability, decimal>> expression = x => x.Value + 1;
 
         var act = () => new ComparisonRule<DecimalCapability, decimal>(

@@ -7,7 +7,8 @@ namespace ReqCap.Abstractions;
 /// </summary>
 /// <typeparam name="TCapability">The capability type evaluated by the rule.</typeparam>
 public interface IRule<TCapability>
-    where TCapability : ICapability {
+    where TCapability : ICapability
+{
     /// <summary>
     /// Evaluates the rule against the supplied capability instance.
     /// </summary>
