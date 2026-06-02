@@ -1,4 +1,5 @@
 using ReqCap.Abstractions;
+using ReqCap.Internal;
 using ReqCap.Results;
 
 namespace ReqCap.Groups;
@@ -16,17 +17,23 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
     private readonly string? _alias;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RuleGroup{TCapability}"/> class.
+    /// Initializes a new instance of the <see cref="RuleGroup{TCapability}" /> class.
     /// </summary>
     /// <param name="op">The logical operator.</param>
     /// <param name="name">The optional group name.</param>
     /// <param name="alias">The optional group alias.</param>
     public RuleGroup(LogicalOperator op, string? name = null, string? alias = null)
     {
+        ArgumentValidation.ThrowIfInvalidEnum(op, nameof(op));
+        ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
+        ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
+
         _operator = op;
         _name = name;
         _alias = alias;
     }
+
+    internal int RuleCount => _rules.Count;
 
     /// <summary>
     /// Adds a rule to the group.
@@ -41,6 +48,8 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
     /// <inheritdoc />
     public EvaluationResult Evaluate(TCapability capability)
     {
+        ThrowIfEmpty();
+
         return _operator switch
         {
             LogicalOperator.And => EvaluateAnd(capability),
@@ -97,6 +106,16 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
             Errors = errors,
             Warnings = warnings,
         };
+    }
+
+    private void ThrowIfEmpty()
+    {
+        if (_rules.Count == 0)
+        {
+            throw new InvalidOperationException(_name is null
+                ? "Group must contain at least one rule."
+                : $"Group '{_name}' must contain at least one rule.");
+        }
     }
 
     private void Tag(IReadOnlyList<Issue> errors, IReadOnlyList<Issue> warnings)

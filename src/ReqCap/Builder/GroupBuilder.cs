@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using ReqCap.Abstractions;
 using ReqCap.Groups;
+using ReqCap.Internal;
 using ReqCap.Results;
 using ReqCap.Rules;
 
@@ -35,8 +36,8 @@ public sealed class GroupBuilder<TCapability>
     /// Adds a custom predicate issue condition to the group.
     /// </summary>
     /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate that returns true when the issue should be produced.</param>
-    /// <param name="severity">The severity used when the predicate returns true.</param>
+    /// <param name="predicate">The predicate that returns <see langword="true" /> when the issue should be produced.</param>
+    /// <param name="severity">The severity used when the predicate returns <see langword="true" />.</param>
     /// <param name="alias">An optional external alias for the rule.</param>
     /// <param name="message">An optional issue message.</param>
     /// <returns>The current group builder.</returns>
@@ -47,7 +48,12 @@ public sealed class GroupBuilder<TCapability>
         string? alias = null,
         string? message = null)
     {
-        return AddRule(new PredicateRule<TCapability>(name, predicate, severity, alias, message));
+        return AddRule(new PredicateRule<TCapability>(
+            name,
+            predicate,
+            severity,
+            alias,
+            message));
     }
 
     /// <summary>
@@ -73,8 +79,12 @@ public sealed class GroupBuilder<TCapability>
     public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ArgumentNullException.ThrowIfNull(build);
+        ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
+        ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
+
         var group = new RuleGroup<TCapability>(LogicalOperator.And, name, alias);
         build(new GroupBuilder<TCapability>(group));
+        ThrowIfEmptyGroup(group, name);
         return AddRule(group);
     }
 
@@ -88,8 +98,22 @@ public sealed class GroupBuilder<TCapability>
     public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ArgumentNullException.ThrowIfNull(build);
+        ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
+        ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
+
         var group = new RuleGroup<TCapability>(LogicalOperator.Or, name, alias);
         build(new GroupBuilder<TCapability>(group));
+        ThrowIfEmptyGroup(group, name);
         return AddRule(group);
+    }
+
+    private static void ThrowIfEmptyGroup(RuleGroup<TCapability> group, string? name)
+    {
+        if (group.RuleCount == 0)
+        {
+            throw new InvalidOperationException(name is null
+                ? "Group must contain at least one rule."
+                : $"Group '{name}' must contain at least one rule.");
+        }
     }
 }

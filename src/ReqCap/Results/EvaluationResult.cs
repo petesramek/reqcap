@@ -26,7 +26,10 @@ public sealed class EvaluationResult
     /// <returns>A successful evaluation result.</returns>
     public static EvaluationResult Ok()
     {
-        return new EvaluationResult { Allowed = true };
+        return new EvaluationResult
+        {
+            Allowed = true,
+        };
     }
 
     /// <summary>
@@ -39,7 +42,15 @@ public sealed class EvaluationResult
         ArgumentNullException.ThrowIfNull(issue);
 
         return issue.Severity == RequirementSeverity.Error
-            ? new EvaluationResult { Allowed = false, Errors = [issue] }
-            : new EvaluationResult { Allowed = true, Warnings = [issue] };
+            ? new EvaluationResult
+            {
+                Allowed = false,
+                Errors = [issue],
+            }
+            : new EvaluationResult
+            {
+                Allowed = true,
+                Warnings = [issue],
+            };
     }
 }

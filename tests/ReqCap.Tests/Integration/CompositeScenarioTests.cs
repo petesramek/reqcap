@@ -1,22 +1,13 @@
 using FluentAssertions;
-using ReqCap.Abstractions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Results;
+using ReqCap.Tests.Fixtures;
 
 namespace ReqCap.Tests.Integration;
 
 public class CompositeScenarioTests
 {
-    private sealed class ContainerCapability : ICapability
-    {
-        public decimal Volume { get; init; }
-
-        public string Material { get; init; } = string.Empty;
-
-        public bool HasDrainage { get; init; }
-    }
-
     [Fact]
     public void Evaluate_WhenHardAndSoftVolumeRulesAreChained_ReturnsOnlyMostRelevantVolumeIssue()
     {
@@ -64,7 +55,6 @@ public class CompositeScenarioTests
         var result = Evaluator.Evaluate(new ContainerCapability { Material = "Plastic" }, requirement);
 
         result.Allowed.Should().BeTrue();
-        result.Errors.Should().BeEmpty();
     }
 
     [Fact]

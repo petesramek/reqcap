@@ -16,10 +16,10 @@ public sealed class ComparisonRule<TCapability, TProperty> : IRule<TCapability>
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ComparisonRule{TCapability, TProperty}"/> class.
+    /// Initializes a new instance of the <see cref="ComparisonRule{TCapability, TProperty}" /> class.
     /// </summary>
     /// <param name="expression">The property expression.</param>
-    /// <param name="expected">The expected value.</param>
+    /// <param name="expected">The expected value used by the issue condition.</param>
     /// <param name="operator">The comparison operator that describes the issue condition.</param>
     /// <param name="severity">The severity used when the condition matches.</param>
     /// <param name="ruleName">The optional rule name.</param>
@@ -35,7 +35,13 @@ public sealed class ComparisonRule<TCapability, TProperty> : IRule<TCapability>
         string? message = null)
     {
         _chain = new PropertyRuleChain<TCapability, TProperty>(expression);
-        _chain.Add(new PropertyCondition<TProperty>(@operator, expected, severity, ruleName, ruleAlias, message));
+        _chain.Add(new PropertyCondition<TProperty>(
+            @operator,
+            expected,
+            severity,
+            ruleName,
+            ruleAlias,
+            message));
     }
 
     /// <inheritdoc />

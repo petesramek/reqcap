@@ -30,7 +30,14 @@ public sealed class RequirementSeverityBuilder<TCapability, TProperty>
     /// <summary>
     /// Creates an error condition.
     /// </summary>
-    public RequirementPropertyBuilder<TCapability, TProperty> AsError(string? name = null, string? alias = null, string? message = null)
+    /// <param name="name">The optional rule name.</param>
+    /// <param name="alias">The optional rule alias.</param>
+    /// <param name="message">The optional issue message.</param>
+    /// <returns>The current property builder.</returns>
+    public RequirementPropertyBuilder<TCapability, TProperty> AsError(
+        string? name = null,
+        string? alias = null,
+        string? message = null)
     {
         return AddCondition(RequirementSeverity.Error, name, alias, message);
     }
@@ -38,7 +45,14 @@ public sealed class RequirementSeverityBuilder<TCapability, TProperty>
     /// <summary>
     /// Creates a warning condition.
     /// </summary>
-    public RequirementPropertyBuilder<TCapability, TProperty> AsWarning(string? name = null, string? alias = null, string? message = null)
+    /// <param name="name">The optional rule name.</param>
+    /// <param name="alias">The optional rule alias.</param>
+    /// <param name="message">The optional issue message.</param>
+    /// <returns>The current property builder.</returns>
+    public RequirementPropertyBuilder<TCapability, TProperty> AsWarning(
+        string? name = null,
+        string? alias = null,
+        string? message = null)
     {
         return AddCondition(RequirementSeverity.Warning, name, alias, message);
     }
@@ -49,7 +63,13 @@ public sealed class RequirementSeverityBuilder<TCapability, TProperty>
         string? alias,
         string? message)
     {
-        return _property.AddCondition(new PropertyCondition<TProperty>(_operator, _value, severity, name, alias, message));
+        return _property.AddCondition(new PropertyCondition<TProperty>(
+            _operator,
+            _value,
+            severity,
+            name,
+            alias,
+            message));
     }
 }
 
@@ -79,7 +99,14 @@ public sealed class GroupSeverityBuilder<TCapability, TProperty>
     /// <summary>
     /// Creates an error condition.
     /// </summary>
-    public GroupPropertyBuilder<TCapability, TProperty> AsError(string? name = null, string? alias = null, string? message = null)
+    /// <param name="name">The optional rule name.</param>
+    /// <param name="alias">The optional rule alias.</param>
+    /// <param name="message">The optional issue message.</param>
+    /// <returns>The current property builder.</returns>
+    public GroupPropertyBuilder<TCapability, TProperty> AsError(
+        string? name = null,
+        string? alias = null,
+        string? message = null)
     {
         return AddCondition(RequirementSeverity.Error, name, alias, message);
     }
@@ -87,7 +114,14 @@ public sealed class GroupSeverityBuilder<TCapability, TProperty>
     /// <summary>
     /// Creates a warning condition.
     /// </summary>
-    public GroupPropertyBuilder<TCapability, TProperty> AsWarning(string? name = null, string? alias = null, string? message = null)
+    /// <param name="name">The optional rule name.</param>
+    /// <param name="alias">The optional rule alias.</param>
+    /// <param name="message">The optional issue message.</param>
+    /// <returns>The current property builder.</returns>
+    public GroupPropertyBuilder<TCapability, TProperty> AsWarning(
+        string? name = null,
+        string? alias = null,
+        string? message = null)
     {
         return AddCondition(RequirementSeverity.Warning, name, alias, message);
     }
@@ -98,6 +132,12 @@ public sealed class GroupSeverityBuilder<TCapability, TProperty>
         string? alias,
         string? message)
     {
-        return _property.AddCondition(new PropertyCondition<TProperty>(_operator, _value, severity, name, alias, message));
+        return _property.AddCondition(new PropertyCondition<TProperty>(
+            _operator,
+            _value,
+            severity,
+            name,
+            alias,
+            message));
     }
 }

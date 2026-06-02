@@ -17,7 +17,7 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
     private readonly List<PropertyCondition<TProperty>> _conditions = [];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PropertyRuleChain{TCapability, TProperty}"/> class.
+    /// Initializes a new instance of the <see cref="PropertyRuleChain{TCapability, TProperty}" /> class.
     /// </summary>
     /// <param name="expression">The property expression.</param>
     public PropertyRuleChain(Expression<Func<TCapability, TProperty>> expression)
@@ -31,6 +31,8 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
     /// Gets the property path evaluated by this chain.
     /// </summary>
     public string PropertyPath { get; }
+
+    internal bool HasConditions => _conditions.Count > 0;
 
     internal void Add(PropertyCondition<TProperty> condition)
     {
@@ -55,7 +57,9 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
         catch (NullReferenceException)
         {
             var first = _conditions[0];
-            return CreateIssueResult(first, $"{PropertyPath} could not be evaluated because part of the property path was null.");
+            return CreateIssueResult(
+                first,
+                $"{PropertyPath} could not be evaluated because part of the property path was null.");
         }
 
         foreach (var condition in _conditions)

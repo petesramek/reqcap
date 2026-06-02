@@ -1,4 +1,5 @@
 using ReqCap.Abstractions;
+using ReqCap.Internal;
 using ReqCap.Results;
 
 namespace ReqCap.Rules;
@@ -17,11 +18,11 @@ public sealed class PredicateRule<TCapability> : IRule<TCapability>
     private readonly string? _message;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="PredicateRule{TCapability}"/> class.
+    /// Initializes a new instance of the <see cref="PredicateRule{TCapability}" /> class.
     /// </summary>
     /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate that returns true when the issue should be produced.</param>
-    /// <param name="severity">The severity used when the predicate returns true.</param>
+    /// <param name="predicate">The predicate that returns <see langword="true" /> when the issue should be produced.</param>
+    /// <param name="severity">The severity used when the predicate returns <see langword="true" />.</param>
     /// <param name="alias">An optional external alias for the rule.</param>
     /// <param name="message">An optional issue message.</param>
     public PredicateRule(
@@ -33,6 +34,9 @@ public sealed class PredicateRule<TCapability> : IRule<TCapability>
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(predicate);
+        ArgumentValidation.ThrowIfInvalidEnum(severity, nameof(severity));
+        ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
+        ArgumentValidation.ThrowIfWhiteSpace(message, nameof(message));
 
         _name = name;
         _predicate = predicate;

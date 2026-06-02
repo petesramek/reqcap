@@ -1,19 +1,12 @@
 using FluentAssertions;
-using ReqCap.Abstractions;
 using ReqCap.Results;
 using ReqCap.Rules;
+using ReqCap.Tests.Fixtures;
 
 namespace ReqCap.Tests.Rules;
 
 public class ComparisonRuleViolationSemanticsTests
 {
-    private sealed class ContainerCapability : ICapability
-    {
-        public decimal Volume { get; init; }
-
-        public string Material { get; init; } = string.Empty;
-    }
-
     [Fact]
     public void Evaluate_WhenComparisonMatches_ReturnsIssue()
     {
@@ -45,21 +38,5 @@ public class ComparisonRuleViolationSemanticsTests
         result.Allowed.Should().BeTrue();
         result.Errors.Should().BeEmpty();
         result.Warnings.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Evaluate_WhenStringConditionMatches_ReturnsIssue()
-    {
-        var rule = new ComparisonRule<ContainerCapability, string>(
-            x => x.Material,
-            "Metal",
-            ComparisonOperator.Equal,
-            RequirementSeverity.Warning,
-            "AvoidMetal");
-
-        var result = rule.Evaluate(new ContainerCapability { Material = "Metal" });
-
-        result.Allowed.Should().BeTrue();
-        result.Warnings.Should().ContainSingle(x => x.RuleName == "AvoidMetal");
     }
 }

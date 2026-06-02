@@ -1,3 +1,4 @@
+using ReqCap.Internal;
 using ReqCap.Results;
 
 namespace ReqCap.Rules;
@@ -13,6 +14,17 @@ internal sealed class PropertyCondition<TProperty>
         string? ruleAlias,
         string? message)
     {
+        ArgumentValidation.ThrowIfInvalidEnum(op, nameof(op));
+        ArgumentValidation.ThrowIfInvalidEnum(severity, nameof(severity));
+        ArgumentValidation.ThrowIfWhiteSpace(ruleName, nameof(ruleName));
+        ArgumentValidation.ThrowIfWhiteSpace(ruleAlias, nameof(ruleAlias));
+        ArgumentValidation.ThrowIfWhiteSpace(message, nameof(message));
+
+        if (expected is null)
+        {
+            throw new ArgumentNullException(nameof(expected));
+        }
+
         Operator = op;
         Expected = expected;
         Severity = severity;
@@ -35,6 +47,16 @@ internal sealed class PropertyCondition<TProperty>
 
     public bool Matches(TProperty actual)
     {
+        if (actual is null)
+        {
+            return Operator switch
+            {
+                ComparisonOperator.Equal => Expected is null,
+                ComparisonOperator.NotEqual => Expected is not null,
+                _ => false,
+            };
+        }
+
         var comparison = actual.CompareTo(Expected);
 
         return Operator switch

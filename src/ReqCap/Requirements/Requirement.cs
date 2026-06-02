@@ -28,7 +28,7 @@ public sealed class Requirement<TCapability> : Requirement
     where TCapability : ICapability
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="Requirement{TCapability}"/> class.
+    /// Initializes a new instance of the <see cref="Requirement{TCapability}" /> class.
     /// </summary>
     /// <param name="rules">The rules in the requirement.</param>
     public Requirement(IEnumerable<IRule<TCapability>> rules)
