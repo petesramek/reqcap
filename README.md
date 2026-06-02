@@ -1,34 +1,21 @@
 # ReqCap
 
-Evaluate capabilities against requirements.
+ReqCap is a small, fluent requirement evaluation library for .NET. It lets you describe issue conditions for capability objects and evaluate those conditions into structured errors and warnings.
 
-ReqCap is a small requirement/capability evaluation engine for .NET. The name comes from “requirements” and “capabilities”, and also reads like “recap”. The goal is to recap whether a capability set satisfies a requirement set, and to explain why it does or does not.
+ReqCap uses issue-condition semantics: when a rule condition matches, ReqCap returns an issue. For example, `LessThan(7m).AsError("MinimumVolume")` means that if the value is less than `7`, the evaluation returns the `MinimumVolume` error.
 
-ReqCap rules are written as issue conditions. If a condition matches, ReqCap produces an error or warning.
-
-## Quick start
+## Basic usage
 
 ```csharp
-using ReqCap.Abstractions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
-
-public sealed class ContainerCapability : ICapability
-{
-    public decimal Volume { get; init; }
-
-    public string Material { get; init; } = string.Empty;
-
-    public bool HasDrainage { get; init; }
-}
+using ReqCap.Results;
 
 var requirement = Requirement
     .For<ContainerCapability>()
     .Property(x => x.Volume)
     .LessThan(7m)
     .AsError("MinimumVolume")
-    .LessThan(10m)
-    .AsWarning("RecommendedVolume")
     .Property(x => x.Material)
     .Equal("Metal")
     .AsWarning("AvoidMetal")
@@ -39,30 +26,43 @@ var result = Evaluator.Evaluate(
     {
         Volume = 5m,
         Material = "Metal",
-        HasDrainage = true,
     },
     requirement);
 ```
 
-The `Volume` rules are chained under one property. They are evaluated in order and only the first matching condition is returned for that property chain.
+If `Volume` is less than `7`, the result contains an error named `MinimumVolume`. If `Material` is equal to `Metal`, the result contains a warning named `AvoidMetal`.
 
-For `Volume = 5`, the result contains `MinimumVolume` and does not contain `RecommendedVolume`.
+## Capability model
 
-The `Material` rule is a separate property chain, so it is still evaluated. The result also contains `AvoidMetal`.
+Capability objects implement `ICapability`.
 
-## Mental model
+```csharp
+using ReqCap.Abstractions;
 
-- Capabilities describe what is available.
-- Requirements describe what should be checked.
-- Rules describe issue conditions.
-- If an issue condition matches, ReqCap returns an error or warning.
-- If there are no errors, the result is allowed.
+public sealed class ContainerCapability : ICapability
+{
+    public decimal Volume { get; init; }
 
-## Property chains
+    public string? Material { get; init; }
 
-Rules chained under the same `Property(...)` call are evaluated in order.
+    public bool HasDrainage { get; init; }
+}
+```
 
-Only the first matching condition in that property chain is returned.
+## Comparison issue conditions
+
+Comparable properties can use these condition methods:
+
+```csharp
+GreaterOrEqual(value)
+GreaterThan(value)
+LessOrEqual(value)
+LessThan(value)
+Equal(value)
+NotEqual(value)
+```
+
+Example:
 
 ```csharp
 var requirement = Requirement
@@ -70,64 +70,111 @@ var requirement = Requirement
     .Property(x => x.Volume)
     .LessThan(7m)
     .AsError("MinimumVolume")
-    .LessThan(10m)
-    .AsWarning("RecommendedVolume")
     .Build();
 ```
 
-Behavior:
+This means that if `Volume` is less than `7`, ReqCap returns the `MinimumVolume` error.
 
-```text
-Volume = 5:
-  MinimumVolume matches.
-  RecommendedVolume is not evaluated.
+Comparison expected values cannot be `null`. Use `Null()` when null should produce an issue.
 
-Volume = 8:
-  MinimumVolume does not match.
-  RecommendedVolume matches.
+## Null issue conditions
 
-Volume = 12:
-  No condition matches.
-```
-
-## Separate property declarations are independent
-
-Separate `Property(...)` calls create separate rule chains, even if they target the same property.
+Use `Null()` when a missing property value should produce an issue.
 
 ```csharp
 var requirement = Requirement
     .For<ContainerCapability>()
-    .Property(x => x.Volume)
-    .LessThan(7m)
-    .AsError("MinimumVolume")
-    .Property(x => x.Volume)
-    .LessThan(10m)
-    .AsWarning("RecommendedVolume")
+    .Property(x => x.Material)
+    .Null()
+    .AsError("MaterialRequired")
     .Build();
 ```
 
-For `Volume = 5`, both conditions can produce issues.
+This means that if `Material` is `null`, ReqCap returns the `MaterialRequired` error.
 
-## Groups
+`Null()` can also be used with nullable value types.
 
-ReqCap v1 supports `And` and `Or` groups.
+```csharp
+public sealed class ContainerCapability : ICapability
+{
+    public decimal? Volume { get; init; }
+}
+
+var requirement = Requirement
+    .For<ContainerCapability>()
+    .Property(x => x.Volume)
+    .Null()
+    .AsError("VolumeRequired")
+    .Build();
+```
+
+For string-specific checks such as empty or whitespace values, use a custom rule so the domain semantics stay explicit.
 
 ```csharp
 var requirement = Requirement
     .For<ContainerCapability>()
-    .Or("AllowedMaterials", group =>
+    .Rule(
+        "MaterialRequired",
+        x => string.IsNullOrWhiteSpace(x.Material),
+        RequirementSeverity.Error)
+    .Build();
+```
+
+## Custom predicate rules
+
+Use `Rule(...)` for domain-specific issue conditions.
+
+```csharp
+var requirement = Requirement
+    .For<ContainerCapability>()
+    .Rule(
+        "DrainageRequired",
+        x => !x.HasDrainage,
+        RequirementSeverity.Error)
+    .Build();
+```
+
+This means that if `HasDrainage` is `false`, ReqCap returns the `DrainageRequired` error.
+
+## Rule groups
+
+Use `And(...)` and `Or(...)` to group rules.
+
+```csharp
+var requirement = Requirement
+    .For<ContainerCapability>()
+    .And("ContainerRules", group =>
     {
-        group.Property(x => x.Material)
-            .NotEqual("Plastic")
-            .AsError("NotPlastic");
+        group.Property(x => x.Volume)
+            .LessThan(7m)
+            .AsError("MinimumVolume");
 
         group.Property(x => x.Material)
-            .NotEqual("Ceramic")
-            .AsError("NotCeramic");
+            .Null()
+            .AsError("MaterialRequired");
     })
     .Build();
 ```
 
-Because rules describe issue conditions, an `Or` branch passes when it produces no error.
+Group names and aliases are added to issues produced inside the group.
 
-There is no `Not` group. Negative conditions should be expressed directly with operators such as `NotEqual`, `LessThan`, or custom predicate rules.
+## Evaluation results
+
+Evaluation returns an `EvaluationResult`.
+
+```csharp
+if (!result.Allowed)
+{
+    foreach (var error in result.Errors)
+    {
+        Console.WriteLine($"{error.RuleName}: {error.Message}");
+    }
+}
+
+foreach (var warning in result.Warnings)
+{
+    Console.WriteLine($"{warning.RuleName}: {warning.Message}");
+}
+```
+
+Errors make `Allowed` false. Warnings do not block `Allowed`.
