@@ -5,13 +5,12 @@ using ReqCap.Results;
 namespace ReqCap.Rules;
 
 /// <summary>
-/// Represents a single issue condition for a comparable capability property.
+/// Represents a single issue condition for a capability property.
 /// </summary>
 /// <typeparam name="TCapability">The capability type.</typeparam>
-/// <typeparam name="TProperty">The comparable property type.</typeparam>
+/// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class ComparisonRule<TCapability, TProperty> : IRule<TCapability>
     where TCapability : ICapability
-    where TProperty : IComparable<TProperty>
 {
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
 

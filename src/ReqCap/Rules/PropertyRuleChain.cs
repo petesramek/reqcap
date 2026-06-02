@@ -5,13 +5,12 @@ using ReqCap.Results;
 namespace ReqCap.Rules;
 
 /// <summary>
-/// Represents an ordered chain of issue conditions for a single comparable property.
+/// Represents an ordered chain of issue conditions for a single property.
 /// </summary>
 /// <typeparam name="TCapability">The capability type.</typeparam>
-/// <typeparam name="TProperty">The comparable property type.</typeparam>
+/// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapability>
     where TCapability : ICapability
-    where TProperty : IComparable<TProperty>
 {
     private readonly Func<TCapability, TProperty> _getter;
     private readonly List<PropertyCondition<TProperty>> _conditions = [];
@@ -68,11 +67,18 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
             {
                 return CreateIssueResult(
                     condition,
-                    condition.Message ?? $"{PropertyPath} matched condition {condition.Operator} {condition.Expected}.");
+                    condition.Message ?? GetDefaultMessage(condition));
             }
         }
 
         return EvaluationResult.Ok();
+    }
+
+    private string GetDefaultMessage(PropertyCondition<TProperty> condition)
+    {
+        return condition.Type == PropertyConditionType.Null
+            ? $"{PropertyPath} matched condition Null."
+            : $"{PropertyPath} matched condition {condition.Operator} {condition.Expected}.";
     }
 
     private EvaluationResult CreateIssueResult(PropertyCondition<TProperty> condition, string message)

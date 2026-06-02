@@ -11,20 +11,24 @@ namespace ReqCap.Builder;
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class RequirementSeverityBuilder<TCapability, TProperty>
     where TCapability : ICapability
-    where TProperty : IComparable<TProperty>
 {
     private readonly RequirementPropertyBuilder<TCapability, TProperty> _property;
-    private readonly TProperty _value;
+    private readonly TProperty? _value;
     private readonly ComparisonOperator _operator;
+    private readonly PropertyConditionType _conditionType;
 
-    internal RequirementSeverityBuilder(
-        RequirementPropertyBuilder<TCapability, TProperty> property,
-        TProperty value,
-        ComparisonOperator op)
+    internal RequirementSeverityBuilder(RequirementPropertyBuilder<TCapability, TProperty> property, TProperty value, ComparisonOperator op)
     {
         _property = property;
         _value = value;
         _operator = op;
+        _conditionType = PropertyConditionType.Comparison;
+    }
+
+    internal RequirementSeverityBuilder(RequirementPropertyBuilder<TCapability, TProperty> property, PropertyConditionType conditionType)
+    {
+        _property = property;
+        _conditionType = conditionType;
     }
 
     /// <summary>
@@ -34,10 +38,7 @@ public sealed class RequirementSeverityBuilder<TCapability, TProperty>
     /// <param name="alias">The optional rule alias.</param>
     /// <param name="message">The optional issue message.</param>
     /// <returns>The current property builder.</returns>
-    public RequirementPropertyBuilder<TCapability, TProperty> AsError(
-        string? name = null,
-        string? alias = null,
-        string? message = null)
+    public RequirementPropertyBuilder<TCapability, TProperty> AsError(string? name = null, string? alias = null, string? message = null)
     {
         return AddCondition(RequirementSeverity.Error, name, alias, message);
     }
@@ -49,27 +50,18 @@ public sealed class RequirementSeverityBuilder<TCapability, TProperty>
     /// <param name="alias">The optional rule alias.</param>
     /// <param name="message">The optional issue message.</param>
     /// <returns>The current property builder.</returns>
-    public RequirementPropertyBuilder<TCapability, TProperty> AsWarning(
-        string? name = null,
-        string? alias = null,
-        string? message = null)
+    public RequirementPropertyBuilder<TCapability, TProperty> AsWarning(string? name = null, string? alias = null, string? message = null)
     {
         return AddCondition(RequirementSeverity.Warning, name, alias, message);
     }
 
-    private RequirementPropertyBuilder<TCapability, TProperty> AddCondition(
-        RequirementSeverity severity,
-        string? name,
-        string? alias,
-        string? message)
+    private RequirementPropertyBuilder<TCapability, TProperty> AddCondition(RequirementSeverity severity, string? name, string? alias, string? message)
     {
-        return _property.AddCondition(new PropertyCondition<TProperty>(
-            _operator,
-            _value,
-            severity,
-            name,
-            alias,
-            message));
+        var condition = _conditionType == PropertyConditionType.Null
+            ? PropertyCondition<TProperty>.Null(severity, name, alias, message)
+            : new PropertyCondition<TProperty>(_operator, _value!, severity, name, alias, message);
+
+        return _property.AddCondition(condition);
     }
 }
 
@@ -80,20 +72,24 @@ public sealed class RequirementSeverityBuilder<TCapability, TProperty>
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class GroupSeverityBuilder<TCapability, TProperty>
     where TCapability : ICapability
-    where TProperty : IComparable<TProperty>
 {
     private readonly GroupPropertyBuilder<TCapability, TProperty> _property;
-    private readonly TProperty _value;
+    private readonly TProperty? _value;
     private readonly ComparisonOperator _operator;
+    private readonly PropertyConditionType _conditionType;
 
-    internal GroupSeverityBuilder(
-        GroupPropertyBuilder<TCapability, TProperty> property,
-        TProperty value,
-        ComparisonOperator op)
+    internal GroupSeverityBuilder(GroupPropertyBuilder<TCapability, TProperty> property, TProperty value, ComparisonOperator op)
     {
         _property = property;
         _value = value;
         _operator = op;
+        _conditionType = PropertyConditionType.Comparison;
+    }
+
+    internal GroupSeverityBuilder(GroupPropertyBuilder<TCapability, TProperty> property, PropertyConditionType conditionType)
+    {
+        _property = property;
+        _conditionType = conditionType;
     }
 
     /// <summary>
@@ -103,10 +99,7 @@ public sealed class GroupSeverityBuilder<TCapability, TProperty>
     /// <param name="alias">The optional rule alias.</param>
     /// <param name="message">The optional issue message.</param>
     /// <returns>The current property builder.</returns>
-    public GroupPropertyBuilder<TCapability, TProperty> AsError(
-        string? name = null,
-        string? alias = null,
-        string? message = null)
+    public GroupPropertyBuilder<TCapability, TProperty> AsError(string? name = null, string? alias = null, string? message = null)
     {
         return AddCondition(RequirementSeverity.Error, name, alias, message);
     }
@@ -118,26 +111,17 @@ public sealed class GroupSeverityBuilder<TCapability, TProperty>
     /// <param name="alias">The optional rule alias.</param>
     /// <param name="message">The optional issue message.</param>
     /// <returns>The current property builder.</returns>
-    public GroupPropertyBuilder<TCapability, TProperty> AsWarning(
-        string? name = null,
-        string? alias = null,
-        string? message = null)
+    public GroupPropertyBuilder<TCapability, TProperty> AsWarning(string? name = null, string? alias = null, string? message = null)
     {
         return AddCondition(RequirementSeverity.Warning, name, alias, message);
     }
 
-    private GroupPropertyBuilder<TCapability, TProperty> AddCondition(
-        RequirementSeverity severity,
-        string? name,
-        string? alias,
-        string? message)
+    private GroupPropertyBuilder<TCapability, TProperty> AddCondition(RequirementSeverity severity, string? name, string? alias, string? message)
     {
-        return _property.AddCondition(new PropertyCondition<TProperty>(
-            _operator,
-            _value,
-            severity,
-            name,
-            alias,
-            message));
+        var condition = _conditionType == PropertyConditionType.Null
+            ? PropertyCondition<TProperty>.Null(severity, name, alias, message)
+            : new PropertyCondition<TProperty>(_operator, _value!, severity, name, alias, message);
+
+        return _property.AddCondition(condition);
     }
 }

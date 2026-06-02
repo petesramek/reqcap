@@ -13,155 +13,82 @@ namespace ReqCap.Builder;
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class RequirementPropertyBuilder<TCapability, TProperty>
     where TCapability : ICapability
-    where TProperty : IComparable<TProperty>
 {
     private readonly RequirementBuilder<TCapability> _parent;
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
     private bool _added;
 
-    internal RequirementPropertyBuilder(
-        RequirementBuilder<TCapability> parent,
-        Expression<Func<TCapability, TProperty>> expression)
+    internal RequirementPropertyBuilder(RequirementBuilder<TCapability> parent, Expression<Func<TCapability, TProperty>> expression)
     {
         _parent = parent;
         _chain = new PropertyRuleChain<TCapability, TProperty>(expression);
     }
 
     /// <summary>
-    /// Creates a greater-than-or-equal issue condition.
+    /// Creates a null issue condition.
     /// </summary>
-    /// <param name="value">The value to compare against.</param>
     /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> GreaterOrEqual(TProperty value)
+    public RequirementSeverityBuilder<TCapability, TProperty> Null()
     {
-        return Create(value, ComparisonOperator.GreaterOrEqual);
+        return Create(PropertyConditionType.Null);
     }
 
-    /// <summary>
-    /// Creates a greater-than issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> GreaterThan(TProperty value)
-    {
-        return Create(value, ComparisonOperator.GreaterThan);
-    }
+    /// <summary>Creates a greater-than-or-equal issue condition.</summary>
+    public RequirementSeverityBuilder<TCapability, TProperty> GreaterOrEqual(TProperty value) => Create(value, ComparisonOperator.GreaterOrEqual);
 
-    /// <summary>
-    /// Creates a less-than-or-equal issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> LessOrEqual(TProperty value)
-    {
-        return Create(value, ComparisonOperator.LessOrEqual);
-    }
+    /// <summary>Creates a greater-than issue condition.</summary>
+    public RequirementSeverityBuilder<TCapability, TProperty> GreaterThan(TProperty value) => Create(value, ComparisonOperator.GreaterThan);
 
-    /// <summary>
-    /// Creates a less-than issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> LessThan(TProperty value)
-    {
-        return Create(value, ComparisonOperator.LessThan);
-    }
+    /// <summary>Creates a less-than-or-equal issue condition.</summary>
+    public RequirementSeverityBuilder<TCapability, TProperty> LessOrEqual(TProperty value) => Create(value, ComparisonOperator.LessOrEqual);
 
-    /// <summary>
-    /// Creates an equality issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> Equal(TProperty value)
-    {
-        return Create(value, ComparisonOperator.Equal);
-    }
+    /// <summary>Creates a less-than issue condition.</summary>
+    public RequirementSeverityBuilder<TCapability, TProperty> LessThan(TProperty value) => Create(value, ComparisonOperator.LessThan);
 
-    /// <summary>
-    /// Creates an inequality issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> NotEqual(TProperty value)
-    {
-        return Create(value, ComparisonOperator.NotEqual);
-    }
+    /// <summary>Creates an equality issue condition.</summary>
+    public RequirementSeverityBuilder<TCapability, TProperty> Equal(TProperty value) => Create(value, ComparisonOperator.Equal);
+
+    /// <summary>Creates an inequality issue condition.</summary>
+    public RequirementSeverityBuilder<TCapability, TProperty> NotEqual(TProperty value) => Create(value, ComparisonOperator.NotEqual);
 
     /// <summary>
     /// Starts a new independent property chain.
     /// </summary>
-    /// <typeparam name="TOtherProperty">The other property type.</typeparam>
-    /// <param name="expression">The other property expression.</param>
-    /// <returns>A property chain builder for the other property.</returns>
-    public RequirementPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(
-        Expression<Func<TCapability, TOtherProperty>> expression)
-        where TOtherProperty : IComparable<TOtherProperty>
+    public RequirementPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(Expression<Func<TCapability, TOtherProperty>> expression)
     {
         ThrowIfEmpty();
         return _parent.Property(expression);
     }
 
-    /// <summary>
-    /// Adds a custom rule instance to the parent requirement.
-    /// </summary>
-    /// <param name="rule">The rule to add.</param>
-    /// <returns>The parent requirement builder.</returns>
+    /// <summary>Adds a custom rule instance to the parent requirement.</summary>
     public RequirementBuilder<TCapability> AddRule(IRule<TCapability> rule)
     {
         ThrowIfEmpty();
         return _parent.AddRule(rule);
     }
 
-    /// <summary>
-    /// Adds a custom predicate issue condition to the parent requirement.
-    /// </summary>
-    /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate that returns <see langword="true" /> when the issue should be produced.</param>
-    /// <param name="severity">The severity used when the predicate returns <see langword="true" />.</param>
-    /// <param name="alias">An optional external alias for the rule.</param>
-    /// <param name="message">An optional issue message.</param>
-    /// <returns>The parent requirement builder.</returns>
-    public RequirementBuilder<TCapability> Rule(
-        string name,
-        Func<TCapability, bool> predicate,
-        RequirementSeverity severity,
-        string? alias = null,
-        string? message = null)
+    /// <summary>Adds a custom predicate issue condition to the parent requirement.</summary>
+    public RequirementBuilder<TCapability> Rule(string name, Func<TCapability, bool> predicate, RequirementSeverity severity, string? alias = null, string? message = null)
     {
         ThrowIfEmpty();
         return _parent.Rule(name, predicate, severity, alias, message);
     }
 
-    /// <summary>
-    /// Adds an AND group to the parent requirement.
-    /// </summary>
-    /// <param name="name">The optional group name.</param>
-    /// <param name="build">The group builder callback.</param>
-    /// <param name="alias">The optional group alias.</param>
-    /// <returns>The parent requirement builder.</returns>
+    /// <summary>Adds an AND group to the parent requirement.</summary>
     public RequirementBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ThrowIfEmpty();
         return _parent.And(name, build, alias);
     }
 
-    /// <summary>
-    /// Adds an OR group to the parent requirement.
-    /// </summary>
-    /// <param name="name">The optional group name.</param>
-    /// <param name="build">The group builder callback.</param>
-    /// <param name="alias">The optional group alias.</param>
-    /// <returns>The parent requirement builder.</returns>
+    /// <summary>Adds an OR group to the parent requirement.</summary>
     public RequirementBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ThrowIfEmpty();
         return _parent.Or(name, build, alias);
     }
 
-    /// <summary>
-    /// Builds the parent requirement.
-    /// </summary>
-    /// <returns>The built requirement.</returns>
+    /// <summary>Builds the parent requirement.</summary>
     public Requirement<TCapability> Build()
     {
         ThrowIfEmpty();
@@ -186,12 +113,16 @@ public sealed class RequirementPropertyBuilder<TCapability, TProperty>
         return new RequirementSeverityBuilder<TCapability, TProperty>(this, value, op);
     }
 
+    private RequirementSeverityBuilder<TCapability, TProperty> Create(PropertyConditionType conditionType)
+    {
+        return new RequirementSeverityBuilder<TCapability, TProperty>(this, conditionType);
+    }
+
     private void ThrowIfEmpty()
     {
         if (!_chain.HasConditions)
         {
-            throw new InvalidOperationException(
-                $"Property chain '{_chain.PropertyPath}' must contain at least one condition.");
+            throw new InvalidOperationException($"Property chain '{_chain.PropertyPath}' must contain at least one condition.");
         }
     }
 }
@@ -203,145 +134,73 @@ public sealed class RequirementPropertyBuilder<TCapability, TProperty>
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class GroupPropertyBuilder<TCapability, TProperty>
     where TCapability : ICapability
-    where TProperty : IComparable<TProperty>
 {
     private readonly GroupBuilder<TCapability> _parent;
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
     private bool _added;
 
-    internal GroupPropertyBuilder(
-        GroupBuilder<TCapability> parent,
-        Expression<Func<TCapability, TProperty>> expression)
+    internal GroupPropertyBuilder(GroupBuilder<TCapability> parent, Expression<Func<TCapability, TProperty>> expression)
     {
         _parent = parent;
         _chain = new PropertyRuleChain<TCapability, TProperty>(expression);
     }
 
     /// <summary>
-    /// Creates a greater-than-or-equal issue condition.
+    /// Creates a null issue condition.
     /// </summary>
-    /// <param name="value">The value to compare against.</param>
     /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> GreaterOrEqual(TProperty value)
+    public GroupSeverityBuilder<TCapability, TProperty> Null()
     {
-        return Create(value, ComparisonOperator.GreaterOrEqual);
+        return Create(PropertyConditionType.Null);
     }
 
-    /// <summary>
-    /// Creates a greater-than issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> GreaterThan(TProperty value)
-    {
-        return Create(value, ComparisonOperator.GreaterThan);
-    }
+    /// <summary>Creates a greater-than-or-equal issue condition.</summary>
+    public GroupSeverityBuilder<TCapability, TProperty> GreaterOrEqual(TProperty value) => Create(value, ComparisonOperator.GreaterOrEqual);
 
-    /// <summary>
-    /// Creates a less-than-or-equal issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> LessOrEqual(TProperty value)
-    {
-        return Create(value, ComparisonOperator.LessOrEqual);
-    }
+    /// <summary>Creates a greater-than issue condition.</summary>
+    public GroupSeverityBuilder<TCapability, TProperty> GreaterThan(TProperty value) => Create(value, ComparisonOperator.GreaterThan);
 
-    /// <summary>
-    /// Creates a less-than issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> LessThan(TProperty value)
-    {
-        return Create(value, ComparisonOperator.LessThan);
-    }
+    /// <summary>Creates a less-than-or-equal issue condition.</summary>
+    public GroupSeverityBuilder<TCapability, TProperty> LessOrEqual(TProperty value) => Create(value, ComparisonOperator.LessOrEqual);
 
-    /// <summary>
-    /// Creates an equality issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> Equal(TProperty value)
-    {
-        return Create(value, ComparisonOperator.Equal);
-    }
+    /// <summary>Creates a less-than issue condition.</summary>
+    public GroupSeverityBuilder<TCapability, TProperty> LessThan(TProperty value) => Create(value, ComparisonOperator.LessThan);
 
-    /// <summary>
-    /// Creates an inequality issue condition.
-    /// </summary>
-    /// <param name="value">The value to compare against.</param>
-    /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> NotEqual(TProperty value)
-    {
-        return Create(value, ComparisonOperator.NotEqual);
-    }
+    /// <summary>Creates an equality issue condition.</summary>
+    public GroupSeverityBuilder<TCapability, TProperty> Equal(TProperty value) => Create(value, ComparisonOperator.Equal);
 
-    /// <summary>
-    /// Starts a new independent property chain.
-    /// </summary>
-    /// <typeparam name="TOtherProperty">The other property type.</typeparam>
-    /// <param name="expression">The other property expression.</param>
-    /// <returns>A property chain builder for the other property.</returns>
-    public GroupPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(
-        Expression<Func<TCapability, TOtherProperty>> expression)
-        where TOtherProperty : IComparable<TOtherProperty>
+    /// <summary>Creates an inequality issue condition.</summary>
+    public GroupSeverityBuilder<TCapability, TProperty> NotEqual(TProperty value) => Create(value, ComparisonOperator.NotEqual);
+
+    /// <summary>Starts a new independent property chain.</summary>
+    public GroupPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(Expression<Func<TCapability, TOtherProperty>> expression)
     {
         ThrowIfEmpty();
         return _parent.Property(expression);
     }
 
-    /// <summary>
-    /// Adds a custom rule instance to the parent group.
-    /// </summary>
-    /// <param name="rule">The rule to add.</param>
-    /// <returns>The parent group builder.</returns>
+    /// <summary>Adds a custom rule instance to the parent group.</summary>
     public GroupBuilder<TCapability> AddRule(IRule<TCapability> rule)
     {
         ThrowIfEmpty();
         return _parent.AddRule(rule);
     }
 
-    /// <summary>
-    /// Adds a custom predicate issue condition to the parent group.
-    /// </summary>
-    /// <param name="name">The rule name.</param>
-    /// <param name="predicate">The predicate that returns <see langword="true" /> when the issue should be produced.</param>
-    /// <param name="severity">The severity used when the predicate returns <see langword="true" />.</param>
-    /// <param name="alias">An optional external alias for the rule.</param>
-    /// <param name="message">An optional issue message.</param>
-    /// <returns>The parent group builder.</returns>
-    public GroupBuilder<TCapability> Rule(
-        string name,
-        Func<TCapability, bool> predicate,
-        RequirementSeverity severity,
-        string? alias = null,
-        string? message = null)
+    /// <summary>Adds a custom predicate issue condition to the parent group.</summary>
+    public GroupBuilder<TCapability> Rule(string name, Func<TCapability, bool> predicate, RequirementSeverity severity, string? alias = null, string? message = null)
     {
         ThrowIfEmpty();
         return _parent.Rule(name, predicate, severity, alias, message);
     }
 
-    /// <summary>
-    /// Adds a nested AND group to the parent group.
-    /// </summary>
-    /// <param name="name">The optional group name.</param>
-    /// <param name="build">The group builder callback.</param>
-    /// <param name="alias">The optional group alias.</param>
-    /// <returns>The parent group builder.</returns>
+    /// <summary>Adds a nested AND group to the parent group.</summary>
     public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ThrowIfEmpty();
         return _parent.And(name, build, alias);
     }
 
-    /// <summary>
-    /// Adds a nested OR group to the parent group.
-    /// </summary>
-    /// <param name="name">The optional group name.</param>
-    /// <param name="build">The group builder callback.</param>
-    /// <param name="alias">The optional group alias.</param>
-    /// <returns>The parent group builder.</returns>
+    /// <summary>Adds a nested OR group to the parent group.</summary>
     public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
     {
         ThrowIfEmpty();
@@ -366,12 +225,16 @@ public sealed class GroupPropertyBuilder<TCapability, TProperty>
         return new GroupSeverityBuilder<TCapability, TProperty>(this, value, op);
     }
 
+    private GroupSeverityBuilder<TCapability, TProperty> Create(PropertyConditionType conditionType)
+    {
+        return new GroupSeverityBuilder<TCapability, TProperty>(this, conditionType);
+    }
+
     private void ThrowIfEmpty()
     {
         if (!_chain.HasConditions)
         {
-            throw new InvalidOperationException(
-                $"Property chain '{_chain.PropertyPath}' must contain at least one condition.");
+            throw new InvalidOperationException($"Property chain '{_chain.PropertyPath}' must contain at least one condition.");
         }
     }
 }

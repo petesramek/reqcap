@@ -57,14 +57,13 @@ public sealed class GroupBuilder<TCapability>
     }
 
     /// <summary>
-    /// Starts an ordered issue-condition chain for a comparable property.
+    /// Starts an ordered issue-condition chain for a property.
     /// </summary>
     /// <typeparam name="TProperty">The property type.</typeparam>
     /// <param name="expression">The property expression.</param>
     /// <returns>A property chain builder.</returns>
     public GroupPropertyBuilder<TCapability, TProperty> Property<TProperty>(
         Expression<Func<TCapability, TProperty>> expression)
-        where TProperty : IComparable<TProperty>
     {
         return new GroupPropertyBuilder<TCapability, TProperty>(this, expression);
     }
