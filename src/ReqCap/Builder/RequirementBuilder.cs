@@ -18,6 +18,13 @@ public sealed class RequirementBuilder<TCapability>
     private readonly List<IRule<TCapability>> _rules = [];
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="RequirementBuilder{TCapability}" /> class.
+    /// </summary>
+    internal RequirementBuilder()
+    {
+    }
+
+    /// <summary>
     /// Adds a custom rule instance.
     /// </summary>
     /// <param name="rule">The rule to add.</param>
