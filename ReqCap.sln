@@ -1,10 +1,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.6.11822.322 stable
+VisualStudioVersion = 18.6.11822.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqCap", "src\ReqCap\ReqCap.csproj", "{38E2F4D1-08A0-4D7A-98FB-3F85EF07A001}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqCap.Tests", "tests\ReqCap.Tests\ReqCap.Tests.csproj", "{8CB6E5E8-F241-4F6B-9328-55E91C8DD002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReqCap.Benchmarks", "benchmarks\ReqCap.Benchmarks\ReqCap.Benchmarks.csproj", "{A24D61D0-F1F5-3993-47C6-D4AC2FB2BBF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,8 +22,15 @@ Global
 		{8CB6E5E8-F241-4F6B-9328-55E91C8DD002}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CB6E5E8-F241-4F6B-9328-55E91C8DD002}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CB6E5E8-F241-4F6B-9328-55E91C8DD002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A24D61D0-F1F5-3993-47C6-D4AC2FB2BBF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A24D61D0-F1F5-3993-47C6-D4AC2FB2BBF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A24D61D0-F1F5-3993-47C6-D4AC2FB2BBF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A24D61D0-F1F5-3993-47C6-D4AC2FB2BBF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F206C98-F5E9-4B46-84A4-2C365119C186}
 	EndGlobalSection
 EndGlobal
