@@ -1,15 +1,13 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Results;
 using ReqCap.Rules;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class ComparisonRuleViolationSemanticsTests
-{
+public class ComparisonRuleViolationSemanticsTests {
     [Fact]
-    public void Evaluate_WhenComparisonMatches_ReturnsIssue()
-    {
+    public void Evaluate_WhenComparisonMatches_ReturnsIssue() {
         var rule = new ComparisonRule<ContainerCapability, decimal>(
             x => x.Volume,
             7m,
@@ -24,8 +22,7 @@ public class ComparisonRuleViolationSemanticsTests
     }
 
     [Fact]
-    public void Evaluate_WhenComparisonDoesNotMatch_ReturnsAllowed()
-    {
+    public void Evaluate_WhenComparisonDoesNotMatch_ReturnsAllowed() {
         var rule = new ComparisonRule<ContainerCapability, decimal>(
             x => x.Volume,
             7m,

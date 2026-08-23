@@ -1,16 +1,15 @@
+namespace ReqCap.Rules;
+
 using ReqCap.Abstractions;
 using ReqCap.Internal;
 using ReqCap.Results;
-
-namespace ReqCap.Rules;
 
 /// <summary>
 /// Represents a custom predicate-based issue condition for a capability.
 /// </summary>
 /// <typeparam name="TCapability">The capability type evaluated by the rule.</typeparam>
 public sealed class PredicateRule<TCapability> : IRule<TCapability>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly string _name;
     private readonly Func<TCapability, bool> _predicate;
     private readonly RequirementSeverity _severity;
@@ -30,8 +29,7 @@ public sealed class PredicateRule<TCapability> : IRule<TCapability>
         Func<TCapability, bool> predicate,
         RequirementSeverity severity,
         string? alias = null,
-        string? message = null)
-    {
+        string? message = null) {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(predicate);
         ArgumentValidation.ThrowIfInvalidEnum(severity, nameof(severity));
@@ -46,15 +44,12 @@ public sealed class PredicateRule<TCapability> : IRule<TCapability>
     }
 
     /// <inheritdoc />
-    public EvaluationResult Evaluate(TCapability capability)
-    {
-        if (!_predicate(capability))
-        {
+    public EvaluationResult Evaluate(TCapability capability) {
+        if (!_predicate(capability)) {
             return EvaluationResult.Ok();
         }
 
-        return EvaluationResult.FromIssue(new Issue
-        {
+        return EvaluationResult.FromIssue(new Issue {
             Property = string.Empty,
             Message = _message ?? $"Rule '{_name}' matched.",
             Severity = _severity,

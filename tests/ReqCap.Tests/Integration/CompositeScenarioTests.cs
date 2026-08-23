@@ -1,16 +1,14 @@
+namespace ReqCap.Tests.Integration;
+
 using FluentAssertions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Results;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Integration;
-
-public class CompositeScenarioTests
-{
+public class CompositeScenarioTests {
     [Fact]
-    public void Evaluate_WhenHardAndSoftVolumeRulesAreChained_ReturnsOnlyMostRelevantVolumeIssue()
-    {
+    public void Evaluate_WhenHardAndSoftVolumeRulesAreChained_ReturnsOnlyMostRelevantVolumeIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -23,8 +21,7 @@ public class CompositeScenarioTests
             .AsWarning("AvoidMetal")
             .Build();
 
-        var result = Evaluator.Evaluate(new ContainerCapability
-        {
+        var result = Evaluator.Evaluate(new ContainerCapability {
             Volume = 5m,
             Material = "Metal",
             HasDrainage = true,
@@ -36,12 +33,10 @@ public class CompositeScenarioTests
     }
 
     [Fact]
-    public void Evaluate_WhenOrGroupUsesViolationRules_PassesWhenOneAlternativeDoesNotMatch()
-    {
+    public void Evaluate_WhenOrGroupUsesViolationRules_PassesWhenOneAlternativeDoesNotMatch() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .Or("AllowedMaterials", group =>
-            {
+            .Or("AllowedMaterials", group => {
                 group.Property(x => x.Material)
                     .NotEqual("Plastic")
                     .AsError("NotPlastic");
@@ -58,12 +53,10 @@ public class CompositeScenarioTests
     }
 
     [Fact]
-    public void Evaluate_WhenOrGroupUsesViolationRules_FailsWhenAllAlternativesMatch()
-    {
+    public void Evaluate_WhenOrGroupUsesViolationRules_FailsWhenAllAlternativesMatch() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .Or("AllowedMaterials", group =>
-            {
+            .Or("AllowedMaterials", group => {
                 group.Property(x => x.Material)
                     .NotEqual("Plastic")
                     .AsError("NotPlastic");
@@ -82,8 +75,7 @@ public class CompositeScenarioTests
     }
 
     [Fact]
-    public void Evaluate_WhenPredicateMatches_ReturnsIssue()
-    {
+    public void Evaluate_WhenPredicateMatches_ReturnsIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Rule(

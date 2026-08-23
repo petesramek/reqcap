@@ -1,26 +1,21 @@
+namespace ReqCap.Tests.Builder;
+
 using FluentAssertions;
 using ReqCap.Abstractions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Results;
 
-namespace ReqCap.Tests.Builder;
-
-public class BuilderChainingTests
-{
-    private sealed class ContainerCapability : ICapability
-    {
+public class BuilderChainingTests {
+    private sealed class ContainerCapability : ICapability {
         public decimal Volume { get; init; }
 
         public string Material { get; init; } = string.Empty;
     }
 
-    private sealed class AlwaysFailRule : IRule<ContainerCapability>
-    {
-        public EvaluationResult Evaluate(ContainerCapability capability)
-        {
-            return new EvaluationResult
-            {
+    private sealed class AlwaysFailRule : IRule<ContainerCapability> {
+        public EvaluationResult Evaluate(ContainerCapability capability) {
+            return new EvaluationResult {
                 Allowed = false,
                 Errors =
                 [
@@ -37,8 +32,7 @@ public class BuilderChainingTests
     }
 
     [Fact]
-    public void Build_WhenRootPropertyRulesAreChained_EvaluatesAllRules()
-    {
+    public void Build_WhenRootPropertyRulesAreChained_EvaluatesAllRules() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -57,12 +51,10 @@ public class BuilderChainingTests
     }
 
     [Fact]
-    public void Build_WhenGroupPropertyRulesAreChained_EvaluatesAllRules()
-    {
+    public void Build_WhenGroupPropertyRulesAreChained_EvaluatesAllRules() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group
                     .Property(x => x.Volume)
                     .LessThan(7m)
@@ -81,8 +73,7 @@ public class BuilderChainingTests
     }
 
     [Fact]
-    public void Build_WhenCustomRuleIsAdded_ReturnsIssue()
-    {
+    public void Build_WhenCustomRuleIsAdded_ReturnsIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .AddRule(new AlwaysFailRule())
@@ -95,8 +86,7 @@ public class BuilderChainingTests
     }
 
     [Fact]
-    public void AddRule_WhenRootRuleIsNull_ThrowsArgumentNullException()
-    {
+    public void AddRule_WhenRootRuleIsNull_ThrowsArgumentNullException() {
         var builder = Requirement.For<ContainerCapability>();
 
         var act = () => builder.AddRule(null!);
@@ -105,12 +95,10 @@ public class BuilderChainingTests
     }
 
     [Fact]
-    public void AddRule_WhenGroupRuleIsNull_ThrowsArgumentNullException()
-    {
+    public void AddRule_WhenGroupRuleIsNull_ThrowsArgumentNullException() {
         var act = () => Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.AddRule(null!);
             })
             .Build();

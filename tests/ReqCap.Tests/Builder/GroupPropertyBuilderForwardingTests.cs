@@ -1,24 +1,20 @@
+namespace ReqCap.Tests.Builder;
+
 using FluentAssertions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Builder;
-
-public class GroupPropertyBuilderForwardingTests
-{
+public class GroupPropertyBuilderForwardingTests {
     [Fact]
-    public void Evaluate_WhenGroupPropertyBuilderContinuesToAnd_EvaluatesNestedGroup()
-    {
+    public void Evaluate_WhenGroupPropertyBuilderContinuesToAnd_EvaluatesNestedGroup() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Property(x => x.Material)
                     .Null()
                     .AsWarning("MaterialMissing")
-                    .And("Nested", nested =>
-                    {
+                    .And("Nested", nested => {
                         nested.Property(x => x.Volume)
                             .LessThan(7m)
                             .AsError("MinimumVolume");
@@ -27,8 +23,7 @@ public class GroupPropertyBuilderForwardingTests
             .Build();
 
         var result = Evaluator.Evaluate(
-            new ContainerCapability
-            {
+            new ContainerCapability {
                 Material = "Plastic",
                 Volume = 5m,
             },
@@ -42,17 +37,14 @@ public class GroupPropertyBuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupPropertyBuilderContinuesToOr_EvaluatesNestedGroup()
-    {
+    public void Evaluate_WhenGroupPropertyBuilderContinuesToOr_EvaluatesNestedGroup() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Property(x => x.Material)
                     .Null()
                     .AsWarning("MaterialMissing")
-                    .Or("NestedMaterials", nested =>
-                    {
+                    .Or("NestedMaterials", nested => {
                         nested.Property(x => x.Material)
                             .Equal("Plastic")
                             .AsWarning("PlasticMaterial");
@@ -65,8 +57,7 @@ public class GroupPropertyBuilderForwardingTests
             .Build();
 
         var result = Evaluator.Evaluate(
-            new ContainerCapability
-            {
+            new ContainerCapability {
                 Material = "Plastic",
                 Volume = 10m,
             },

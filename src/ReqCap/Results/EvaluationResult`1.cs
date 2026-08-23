@@ -4,10 +4,8 @@ namespace ReqCap.Results;
 /// Represents the result of evaluating a requirement and projecting matched rules into consumer-defined result objects.
 /// </summary>
 /// <typeparam name="TResult">The consumer-defined result type.</typeparam>
-public sealed class EvaluationResult<TResult>
-{
-    private static readonly EvaluationResult<TResult> SatisfiedResult = new()
-    {
+public sealed class EvaluationResult<TResult> {
+    private static readonly EvaluationResult<TResult> SatisfiedResult = new() {
         Satisfied = true,
         Results = Array.Empty<TResult>(),
     };
@@ -26,8 +24,7 @@ public sealed class EvaluationResult<TResult>
     /// Creates a satisfied evaluation result.
     /// </summary>
     /// <returns>A satisfied evaluation result.</returns>
-    public static EvaluationResult<TResult> SatisfiedResultInstance()
-    {
+    public static EvaluationResult<TResult> SatisfiedResultInstance() {
         return SatisfiedResult;
     }
 
@@ -36,14 +33,12 @@ public sealed class EvaluationResult<TResult>
     /// </summary>
     /// <param name="results">The projected result objects.</param>
     /// <returns>An evaluation result containing the projected result objects.</returns>
-    public static EvaluationResult<TResult> FromResults(IReadOnlyList<TResult> results)
-    {
+    public static EvaluationResult<TResult> FromResults(IReadOnlyList<TResult> results) {
         ArgumentNullException.ThrowIfNull(results);
 
         return results.Count == 0
             ? SatisfiedResult
-            : new EvaluationResult<TResult>
-            {
+            : new EvaluationResult<TResult> {
                 Satisfied = false,
                 Results = results,
             };

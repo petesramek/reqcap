@@ -1,3 +1,5 @@
+namespace ReqCap.Tests.Builder;
+
 using FluentAssertions;
 using ReqCap.Abstractions;
 using ReqCap.Evaluation;
@@ -5,16 +7,10 @@ using ReqCap.Requirements;
 using ReqCap.Results;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Builder;
-
-public class BuilderForwardingTests
-{
-    private sealed class AlwaysWarningRule : IRule<ContainerCapability>
-    {
-        public EvaluationResult Evaluate(ContainerCapability capability)
-        {
-            return EvaluationResult.FromIssue(new Issue
-            {
+public class BuilderForwardingTests {
+    private sealed class AlwaysWarningRule : IRule<ContainerCapability> {
+        public EvaluationResult Evaluate(ContainerCapability capability) {
+            return EvaluationResult.FromIssue(new Issue {
                 Property = string.Empty,
                 Message = "Always warning.",
                 Severity = RequirementSeverity.Warning,
@@ -24,8 +20,7 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenRequirementPropertyBuilderContinuesToAddRule_EvaluatesAddedRule()
-    {
+    public void Evaluate_WhenRequirementPropertyBuilderContinuesToAddRule_EvaluatesAddedRule() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -41,8 +36,7 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenRequirementPropertyBuilderContinuesToRule_EvaluatesPredicateRule()
-    {
+    public void Evaluate_WhenRequirementPropertyBuilderContinuesToRule_EvaluatesPredicateRule() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -58,15 +52,13 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenRequirementPropertyBuilderContinuesToAnd_EvaluatesGroup()
-    {
+    public void Evaluate_WhenRequirementPropertyBuilderContinuesToAnd_EvaluatesGroup() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
             .LessThan(7m)
             .AsError("MinimumVolume")
-            .And("Drainage", group =>
-            {
+            .And("Drainage", group => {
                 group.Property(x => x.HasDrainage)
                     .Equal(false)
                     .AsError("DrainageRequired");
@@ -80,15 +72,13 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenRequirementPropertyBuilderContinuesToOr_EvaluatesGroup()
-    {
+    public void Evaluate_WhenRequirementPropertyBuilderContinuesToOr_EvaluatesGroup() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
             .LessThan(7m)
             .AsError("MinimumVolume")
-            .Or("AllowedMaterials", group =>
-            {
+            .Or("AllowedMaterials", group => {
                 group.Property(x => x.Material)
                     .NotEqual("Plastic")
                     .AsError("NotPlastic");
@@ -105,12 +95,10 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupPropertyBuilderContinuesToAddRule_EvaluatesAddedRule()
-    {
+    public void Evaluate_WhenGroupPropertyBuilderContinuesToAddRule_EvaluatesAddedRule() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Property(x => x.Volume)
                     .LessThan(7m)
                     .AsError("MinimumVolume")
@@ -125,12 +113,10 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupPropertyBuilderContinuesToRule_EvaluatesPredicateRule()
-    {
+    public void Evaluate_WhenGroupPropertyBuilderContinuesToRule_EvaluatesPredicateRule() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Property(x => x.Volume)
                     .LessThan(7m)
                     .AsError("MinimumVolume")
@@ -145,12 +131,10 @@ public class BuilderForwardingTests
     }
 
     [Fact]
-    public void GroupPropertyBuilder_WhenContinuedWithoutCondition_ThrowsInvalidOperationException()
-    {
+    public void GroupPropertyBuilder_WhenContinuedWithoutCondition_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Property(x => x.Volume)
                     .Rule("AvoidMetal", x => x.Material == "Metal", RequirementSeverity.Warning);
             });

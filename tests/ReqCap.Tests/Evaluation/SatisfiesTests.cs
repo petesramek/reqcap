@@ -5,11 +5,9 @@ using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-public class SatisfiesTests
-{
+public class SatisfiesTests {
     [Fact]
-    public void Satisfies_WhenNoRuleMatches_ReturnsTrue()
-    {
+    public void Satisfies_WhenNoRuleMatches_ReturnsTrue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -23,8 +21,7 @@ public class SatisfiesTests
     }
 
     [Fact]
-    public void Satisfies_WhenAnyRuleMatches_ReturnsFalse()
-    {
+    public void Satisfies_WhenAnyRuleMatches_ReturnsFalse() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)

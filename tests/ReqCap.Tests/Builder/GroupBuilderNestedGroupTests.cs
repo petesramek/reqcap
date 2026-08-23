@@ -1,20 +1,17 @@
+namespace ReqCap.Tests.Builder;
+
 using FluentAssertions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Results;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Builder;
-
-public class GroupBuilderNestedGroupTests
-{
+public class GroupBuilderNestedGroupTests {
     [Fact]
-    public void Evaluate_WhenGroupBuilderAddsPredicateRule_EvaluatesRule()
-    {
+    public void Evaluate_WhenGroupBuilderAddsPredicateRule_EvaluatesRule() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Rule("AvoidMetal", x => x.Material == "Metal", RequirementSeverity.Warning);
             })
             .Build();
@@ -26,14 +23,11 @@ public class GroupBuilderNestedGroupTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupBuilderAddsNestedAndGroup_EvaluatesNestedGroup()
-    {
+    public void Evaluate_WhenGroupBuilderAddsNestedAndGroup_EvaluatesNestedGroup() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
-                group.And("Nested", nested =>
-                {
+            .And("Root", group => {
+                group.And("Nested", nested => {
                     nested.Property(x => x.Volume)
                         .LessThan(7m)
                         .AsError("MinimumVolume");
@@ -50,14 +44,11 @@ public class GroupBuilderNestedGroupTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupBuilderAddsNestedOrGroup_EvaluatesNestedGroup()
-    {
+    public void Evaluate_WhenGroupBuilderAddsNestedOrGroup_EvaluatesNestedGroup() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
-                group.Or("NestedMaterials", nested =>
-                {
+            .And("Root", group => {
+                group.Or("NestedMaterials", nested => {
                     nested.Property(x => x.Material)
                         .NotEqual("Plastic")
                         .AsError("NotPlastic");
@@ -76,12 +67,10 @@ public class GroupBuilderNestedGroupTests
     }
 
     [Fact]
-    public void And_WhenNestedGroupIsEmpty_ThrowsInvalidOperationException()
-    {
+    public void And_WhenNestedGroupIsEmpty_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.And("Nested", nested => { });
             });
 
@@ -89,12 +78,10 @@ public class GroupBuilderNestedGroupTests
     }
 
     [Fact]
-    public void Or_WhenNestedGroupIsEmpty_ThrowsInvalidOperationException()
-    {
+    public void Or_WhenNestedGroupIsEmpty_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Or("Nested", nested => { });
             });
 

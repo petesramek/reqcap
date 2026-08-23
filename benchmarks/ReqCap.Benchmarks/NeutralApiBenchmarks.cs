@@ -1,15 +1,13 @@
+namespace ReqCap.Benchmarks;
+
 using BenchmarkDotNet.Attributes;
 using ReqCap.Builder;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 
-namespace ReqCap.Benchmarks;
-
 [MemoryDiagnoser]
-public class NeutralApiBenchmarks
-{
-    private static readonly BenchmarkCapability PassingCapability = new()
-    {
+public class NeutralApiBenchmarks {
+    private static readonly BenchmarkCapability PassingCapability = new() {
         Volume = 10m,
         OptionalVolume = 10m,
         Material = "Plastic",
@@ -18,8 +16,7 @@ public class NeutralApiBenchmarks
         Nested = new NestedBenchmarkCapability { Code = "Known" },
     };
 
-    private static readonly BenchmarkCapability FailingCapability = new()
-    {
+    private static readonly BenchmarkCapability FailingCapability = new() {
         Volume = 5m,
         OptionalVolume = null,
         Material = null,
@@ -48,8 +45,7 @@ public class NeutralApiBenchmarks
 
     private static readonly Requirement<BenchmarkCapability> GroupedNeutralRequirement = Requirement
         .For<BenchmarkCapability>()
-        .And("ContainerRules", group =>
-        {
+        .And("ContainerRules", group => {
             group.Property(x => x.Volume)
                 .LessThan(7m)
                 .Then("MinimumVolume", message: "Volume is too small.");
@@ -59,101 +55,84 @@ public class NeutralApiBenchmarks
         .Build();
 
     [Benchmark]
-    public bool Satisfies_NoRules()
-    {
+    public bool Satisfies_NoRules() {
         return Evaluator.Satisfies(PassingCapability, NoRules);
     }
 
     [Benchmark]
-    public bool Satisfies_OnePropertyRule_NoMatch()
-    {
+    public bool Satisfies_OnePropertyRule_NoMatch() {
         return Evaluator.Satisfies(PassingCapability, OnePropertyRule);
     }
 
     [Benchmark]
-    public bool Satisfies_OnePropertyRule_Match()
-    {
+    public bool Satisfies_OnePropertyRule_Match() {
         return Evaluator.Satisfies(FailingCapability, OnePropertyRule);
     }
 
     [Benchmark]
-    public bool Satisfies_OnePredicateRule_NoMatch()
-    {
+    public bool Satisfies_OnePredicateRule_NoMatch() {
         return Evaluator.Satisfies(PassingCapability, OnePredicateRule);
     }
 
     [Benchmark]
-    public bool Satisfies_OnePredicateRule_Match()
-    {
+    public bool Satisfies_OnePredicateRule_Match() {
         return Evaluator.Satisfies(FailingCapability, OnePredicateRule);
     }
 
     [Benchmark]
-    public bool Satisfies_TenPredicateRules_NoMatches()
-    {
+    public bool Satisfies_TenPredicateRules_NoMatches() {
         return Evaluator.Satisfies(PassingCapability, TenPredicateRules);
     }
 
     [Benchmark]
-    public bool Satisfies_TenPredicateRules_OneMatch()
-    {
+    public bool Satisfies_TenPredicateRules_OneMatch() {
         return Evaluator.Satisfies(FailingCapability, TenPredicateRules);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_NoRules()
-    {
+    public object EvaluateGeneric_NoRules() {
         return Evaluator.Evaluate(PassingCapability, NoRules, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_OnePropertyRule_NoMatch()
-    {
+    public object EvaluateGeneric_OnePropertyRule_NoMatch() {
         return Evaluator.Evaluate(PassingCapability, OnePropertyRule, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_OnePropertyRule_Match()
-    {
+    public object EvaluateGeneric_OnePropertyRule_Match() {
         return Evaluator.Evaluate(FailingCapability, OnePropertyRule, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_OnePredicateRule_NoMatch()
-    {
+    public object EvaluateGeneric_OnePredicateRule_NoMatch() {
         return Evaluator.Evaluate(PassingCapability, OnePredicateRule, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_OnePredicateRule_Match()
-    {
+    public object EvaluateGeneric_OnePredicateRule_Match() {
         return Evaluator.Evaluate(FailingCapability, OnePredicateRule, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_TenPredicateRules_NoMatches()
-    {
+    public object EvaluateGeneric_TenPredicateRules_NoMatches() {
         return Evaluator.Evaluate(PassingCapability, TenPredicateRules, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_TenPredicateRules_OneMatch()
-    {
+    public object EvaluateGeneric_TenPredicateRules_OneMatch() {
         return Evaluator.Evaluate(FailingCapability, TenPredicateRules, Project);
     }
 
     [Benchmark]
-    public object EvaluateGeneric_GroupedNeutralRequirement_AllMatch()
-    {
+    public object EvaluateGeneric_GroupedNeutralRequirement_AllMatch() {
         return Evaluator.Evaluate(FailingCapability, GroupedNeutralRequirement, Project);
     }
 
-    private static Requirement<BenchmarkCapability> BuildPredicateRules(int count)
-    {
+    private static Requirement<BenchmarkCapability> BuildPredicateRules(int count) {
         var builder = Requirement.For<BenchmarkCapability>();
 
-        for (var i = 0; i < count; i++)
-        {
+        for (var i = 0; i < count; i++) {
             var expected = i;
             builder.Rule(
                 $"IndexIs{expected}",
@@ -164,8 +143,7 @@ public class NeutralApiBenchmarks
         return builder.Build();
     }
 
-    private static NeutralProjection Project(ReqCap.Results.RequirementMatch match)
-    {
+    private static NeutralProjection Project(ReqCap.Results.RequirementMatch match) {
         return new NeutralProjection(
             match.RuleName,
             match.PropertyPath,

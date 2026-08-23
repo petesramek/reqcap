@@ -1,23 +1,20 @@
+namespace ReqCap.Benchmarks;
+
 using BenchmarkDotNet.Attributes;
 using ReqCap.Requirements;
 using ReqCap.Results;
 
-namespace ReqCap.Benchmarks;
-
 [MemoryDiagnoser]
-public class RequirementBuildBenchmarks
-{
+public class RequirementBuildBenchmarks {
     [Benchmark]
-    public object Build_NoRules()
-    {
+    public object Build_NoRules() {
         return Requirement
             .For<BenchmarkCapability>()
             .Build();
     }
 
     [Benchmark]
-    public object Build_SingleComparisonRule()
-    {
+    public object Build_SingleComparisonRule() {
         return Requirement
             .For<BenchmarkCapability>()
             .Property(x => x.Volume)
@@ -27,8 +24,7 @@ public class RequirementBuildBenchmarks
     }
 
     [Benchmark]
-    public object Build_NullConditionRule()
-    {
+    public object Build_NullConditionRule() {
         return Requirement
             .For<BenchmarkCapability>()
             .Property(x => x.Material)
@@ -38,8 +34,7 @@ public class RequirementBuildBenchmarks
     }
 
     [Benchmark]
-    public object Build_PropertyChainWithThreeConditions()
-    {
+    public object Build_PropertyChainWithThreeConditions() {
         return Requirement
             .For<BenchmarkCapability>()
             .Property(x => x.Volume)
@@ -53,8 +48,7 @@ public class RequirementBuildBenchmarks
     }
 
     [Benchmark]
-    public object Build_CustomPredicateRules()
-    {
+    public object Build_CustomPredicateRules() {
         return Requirement
             .For<BenchmarkCapability>()
             .Rule(
@@ -69,12 +63,10 @@ public class RequirementBuildBenchmarks
     }
 
     [Benchmark]
-    public object Build_GroupedRequirement()
-    {
+    public object Build_GroupedRequirement() {
         return Requirement
             .For<BenchmarkCapability>()
-            .And("ContainerRules", group =>
-            {
+            .And("ContainerRules", group => {
                 group.Property(x => x.Volume)
                     .LessThan(7m)
                     .AsError("MinimumVolume");
@@ -87,18 +79,15 @@ public class RequirementBuildBenchmarks
     }
 
     [Benchmark]
-    public object Build_NestedGroups()
-    {
+    public object Build_NestedGroups() {
         return Requirement
             .For<BenchmarkCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Property(x => x.Volume)
                     .LessThan(7m)
                     .AsError("MinimumVolume");
 
-                group.Or("MaterialRules", nested =>
-                {
+                group.Or("MaterialRules", nested => {
                     nested.Property(x => x.Material)
                         .Null()
                         .AsError("MaterialRequired");

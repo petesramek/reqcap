@@ -1,24 +1,20 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Abstractions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
-using ReqCap.Results;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class NullConditionTests
-{
-    private sealed class NullableCapability : ICapability
-    {
+public class NullConditionTests {
+    private sealed class NullableCapability : ICapability {
         public decimal? Volume { get; init; }
 
         public object? Payload { get; init; }
     }
 
     [Fact]
-    public void Evaluate_WhenReferencePropertyIsNull_ReturnsIssue()
-    {
+    public void Evaluate_WhenReferencePropertyIsNull_ReturnsIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -33,8 +29,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenReferencePropertyIsNotNull_ReturnsAllowed()
-    {
+    public void Evaluate_WhenReferencePropertyIsNotNull_ReturnsAllowed() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -49,8 +44,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenNullableValuePropertyIsNull_ReturnsIssue()
-    {
+    public void Evaluate_WhenNullableValuePropertyIsNull_ReturnsIssue() {
         var requirement = Requirement
             .For<NullableCapability>()
             .Property(x => x.Volume)
@@ -65,8 +59,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenNullableValuePropertyHasValue_ReturnsAllowed()
-    {
+    public void Evaluate_WhenNullableValuePropertyHasValue_ReturnsAllowed() {
         var requirement = Requirement
             .For<NullableCapability>()
             .Property(x => x.Volume)
@@ -81,8 +74,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenObjectPropertyIsNull_ReturnsIssue()
-    {
+    public void Evaluate_WhenObjectPropertyIsNull_ReturnsIssue() {
         var requirement = Requirement
             .For<NullableCapability>()
             .Property(x => x.Payload)
@@ -97,8 +89,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenNullConditionMatchesInPropertyChain_ReturnsOnlyFirstIssue()
-    {
+    public void Evaluate_WhenNullConditionMatchesInPropertyChain_ReturnsOnlyFirstIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -116,12 +107,10 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenNullConditionIsInsideGroup_ReturnsGroupedIssue()
-    {
+    public void Evaluate_WhenNullConditionIsInsideGroup_ReturnsGroupedIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("MaterialRules", group =>
-            {
+            .And("MaterialRules", group => {
                 group.Property(x => x.Material)
                     .Null()
                     .AsError("MaterialRequired");
@@ -137,8 +126,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Evaluate_WhenNullConditionIsWarning_ReturnsWarning()
-    {
+    public void Evaluate_WhenNullConditionIsWarning_ReturnsWarning() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -153,8 +141,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void Equal_WhenExpectedValueIsNull_ThrowsWithNullConditionGuidance()
-    {
+    public void Equal_WhenExpectedValueIsNull_ThrowsWithNullConditionGuidance() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -166,8 +153,7 @@ public class NullConditionTests
     }
 
     [Fact]
-    public void LessThan_WhenPropertyDoesNotSupportComparison_ThrowsInvalidOperationException()
-    {
+    public void LessThan_WhenPropertyDoesNotSupportComparison_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<NullableCapability>()
             .Property(x => x.Payload)

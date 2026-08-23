@@ -7,8 +7,7 @@ using ReqCap.Rules;
 /// <summary>
 /// Provides neutral result projection-oriented extensions for custom predicate rules.
 /// </summary>
-public static class RuleBuilderExtensions
-{
+public static class RuleBuilderExtensions {
     /// <summary>
     /// Adds a custom predicate requirement match.
     /// </summary>
@@ -25,8 +24,7 @@ public static class RuleBuilderExtensions
         Func<TCapability, bool> predicate,
         string? alias = null,
         string? message = null)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(builder);
 
         return builder.AddRule(new PredicateRule<TCapability>(
@@ -54,8 +52,7 @@ public static class RuleBuilderExtensions
         Func<TCapability, bool> predicate,
         string? alias = null,
         string? message = null)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(builder);
 
         return builder.AddRule(new PredicateRule<TCapability>(
@@ -82,8 +79,7 @@ public static class RuleBuilderExtensions
         Func<TCapability, bool> predicate,
         string? alias = null,
         string? message = null)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(builder);
 
         return builder.AddRule(new PredicateRule<TCapability>(
@@ -111,8 +107,7 @@ public static class RuleBuilderExtensions
         Func<TCapability, bool> predicate,
         string? alias = null,
         string? message = null)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(builder);
 
         return builder.AddRule(new PredicateRule<TCapability>(

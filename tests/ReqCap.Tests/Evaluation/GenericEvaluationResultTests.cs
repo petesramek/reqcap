@@ -5,13 +5,11 @@ using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-public class GenericEvaluationResultTests
-{
+public class GenericEvaluationResultTests {
     private sealed record Projection(string RuleName, string? PropertyPath, string? Message, string? GroupName);
 
     [Fact]
-    public void Evaluate_WhenNoRuleMatches_ReturnsSatisfiedGenericResult()
-    {
+    public void Evaluate_WhenNoRuleMatches_ReturnsSatisfiedGenericResult() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -29,8 +27,7 @@ public class GenericEvaluationResultTests
     }
 
     [Fact]
-    public void Evaluate_WhenRuleMatches_ProjectsMatchIntoConsumerResult()
-    {
+    public void Evaluate_WhenRuleMatches_ProjectsMatchIntoConsumerResult() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -52,12 +49,10 @@ public class GenericEvaluationResultTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupedRuleMatches_ProjectsGroupMetadata()
-    {
+    public void Evaluate_WhenGroupedRuleMatches_ProjectsGroupMetadata() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("ContainerRules", group =>
-            {
+            .And("ContainerRules", group => {
                 group.Property(x => x.Material)
                     .Null()
                     .AsWarning("MaterialMissing");

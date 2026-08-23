@@ -1,26 +1,23 @@
+namespace ReqCap.Rules;
+
 using ReqCap.Internal;
 using ReqCap.Results;
 
-namespace ReqCap.Rules;
-
-internal sealed class PropertyCondition<TProperty>
-{
+internal sealed class PropertyCondition<TProperty> {
     public PropertyCondition(
         ComparisonOperator op,
         TProperty expected,
         RequirementSeverity severity,
         string? ruleName,
         string? ruleAlias,
-        string? message)
-    {
+        string? message) {
         ArgumentValidation.ThrowIfInvalidEnum(op, nameof(op));
         ArgumentValidation.ThrowIfInvalidEnum(severity, nameof(severity));
         ArgumentValidation.ThrowIfWhiteSpace(ruleName, nameof(ruleName));
         ArgumentValidation.ThrowIfWhiteSpace(ruleAlias, nameof(ruleAlias));
         ArgumentValidation.ThrowIfWhiteSpace(message, nameof(message));
 
-        if (expected is null)
-        {
+        if (expected is null) {
             throw new ArgumentNullException(
                 nameof(expected),
                 "Expected comparison value cannot be null. Use Null() to match null property values.");
@@ -42,8 +39,7 @@ internal sealed class PropertyCondition<TProperty>
         RequirementSeverity severity,
         string? ruleName,
         string? ruleAlias,
-        string? message)
-    {
+        string? message) {
         ArgumentValidation.ThrowIfInvalidEnum(type, nameof(type));
         ArgumentValidation.ThrowIfInvalidEnum(severity, nameof(severity));
         ArgumentValidation.ThrowIfWhiteSpace(ruleName, nameof(ruleName));
@@ -75,8 +71,7 @@ internal sealed class PropertyCondition<TProperty>
         RequirementSeverity severity,
         string? ruleName,
         string? ruleAlias,
-        string? message)
-    {
+        string? message) {
         return new PropertyCondition<TProperty>(
             PropertyConditionType.Null,
             severity,
@@ -85,25 +80,20 @@ internal sealed class PropertyCondition<TProperty>
             message);
     }
 
-    public bool Matches(TProperty? actual)
-    {
-        return Type switch
-        {
+    public bool Matches(TProperty? actual) {
+        return Type switch {
             PropertyConditionType.Null => actual is null,
             PropertyConditionType.Comparison => MatchesComparison(actual),
             _ => false,
         };
     }
 
-    private bool MatchesComparison(TProperty? actual)
-    {
-        if (actual is null)
-        {
+    private bool MatchesComparison(TProperty? actual) {
+        if (actual is null) {
             return false;
         }
 
-        return Operator switch
-        {
+        return Operator switch {
             ComparisonOperator.Equal => Equals(actual, Expected),
             ComparisonOperator.NotEqual => !Equals(actual, Expected),
             ComparisonOperator.GreaterOrEqual => Compare(actual) >= 0,
@@ -114,15 +104,12 @@ internal sealed class PropertyCondition<TProperty>
         };
     }
 
-    private int Compare(TProperty actual)
-    {
+    private int Compare(TProperty actual) {
         return Comparer<TProperty>.Default.Compare(actual, Expected!);
     }
 
-    private static void ThrowIfUnsupportedComparison(ComparisonOperator op)
-    {
-        if (op is ComparisonOperator.Equal or ComparisonOperator.NotEqual)
-        {
+    private static void ThrowIfUnsupportedComparison(ComparisonOperator op) {
+        if (op is ComparisonOperator.Equal or ComparisonOperator.NotEqual) {
             return;
         }
 
@@ -131,8 +118,7 @@ internal sealed class PropertyCondition<TProperty>
         var comparableType = nullableUnderlyingType ?? propertyType;
         var genericComparableType = typeof(IComparable<>).MakeGenericType(comparableType);
 
-        if (genericComparableType.IsAssignableFrom(comparableType) || typeof(IComparable).IsAssignableFrom(comparableType))
-        {
+        if (genericComparableType.IsAssignableFrom(comparableType) || typeof(IComparable).IsAssignableFrom(comparableType)) {
             return;
         }
 

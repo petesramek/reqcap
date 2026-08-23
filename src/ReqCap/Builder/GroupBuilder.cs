@@ -1,23 +1,21 @@
-using System.Linq.Expressions;
+namespace ReqCap.Builder;
+
 using ReqCap.Abstractions;
 using ReqCap.Groups;
 using ReqCap.Internal;
 using ReqCap.Results;
 using ReqCap.Rules;
-
-namespace ReqCap.Builder;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Builds rules inside a logical group.
 /// </summary>
 /// <typeparam name="TCapability">The capability type.</typeparam>
 public sealed class GroupBuilder<TCapability>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly RuleGroup<TCapability> _group;
 
-    internal GroupBuilder(RuleGroup<TCapability> group)
-    {
+    internal GroupBuilder(RuleGroup<TCapability> group) {
         _group = group;
     }
 
@@ -26,8 +24,7 @@ public sealed class GroupBuilder<TCapability>
     /// </summary>
     /// <param name="rule">The rule to add.</param>
     /// <returns>The current group builder.</returns>
-    public GroupBuilder<TCapability> AddRule(IRule<TCapability> rule)
-    {
+    public GroupBuilder<TCapability> AddRule(IRule<TCapability> rule) {
         _group.Add(rule);
         return this;
     }
@@ -46,8 +43,7 @@ public sealed class GroupBuilder<TCapability>
         Func<TCapability, bool> predicate,
         RequirementSeverity severity,
         string? alias = null,
-        string? message = null)
-    {
+        string? message = null) {
         return AddRule(new PredicateRule<TCapability>(
             name,
             predicate,
@@ -63,8 +59,7 @@ public sealed class GroupBuilder<TCapability>
     /// <param name="expression">The property expression.</param>
     /// <returns>A property chain builder.</returns>
     public GroupPropertyBuilder<TCapability, TProperty> Property<TProperty>(
-        Expression<Func<TCapability, TProperty>> expression)
-    {
+        Expression<Func<TCapability, TProperty>> expression) {
         return new GroupPropertyBuilder<TCapability, TProperty>(this, expression);
     }
 
@@ -75,8 +70,7 @@ public sealed class GroupBuilder<TCapability>
     /// <param name="build">The group builder callback.</param>
     /// <param name="alias">The optional group alias.</param>
     /// <returns>The current group builder.</returns>
-    public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ArgumentNullException.ThrowIfNull(build);
         ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
         ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
@@ -94,8 +88,7 @@ public sealed class GroupBuilder<TCapability>
     /// <param name="build">The group builder callback.</param>
     /// <param name="alias">The optional group alias.</param>
     /// <returns>The current group builder.</returns>
-    public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ArgumentNullException.ThrowIfNull(build);
         ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
         ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
@@ -106,10 +99,8 @@ public sealed class GroupBuilder<TCapability>
         return AddRule(group);
     }
 
-    private static void ThrowIfEmptyGroup(RuleGroup<TCapability> group, string? name)
-    {
-        if (group.RuleCount == 0)
-        {
+    private static void ThrowIfEmptyGroup(RuleGroup<TCapability> group, string? name) {
+        if (group.RuleCount == 0) {
             throw new InvalidOperationException(name is null
                 ? "Group must contain at least one rule."
                 : $"Group '{name}' must contain at least one rule.");

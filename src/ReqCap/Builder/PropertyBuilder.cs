@@ -1,10 +1,10 @@
-using System.Linq.Expressions;
+namespace ReqCap.Builder;
+
 using ReqCap.Abstractions;
 using ReqCap.Requirements;
 using ReqCap.Results;
 using ReqCap.Rules;
-
-namespace ReqCap.Builder;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Builds an ordered issue-condition chain for a requirement property.
@@ -12,14 +12,12 @@ namespace ReqCap.Builder;
 /// <typeparam name="TCapability">The capability type.</typeparam>
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class RequirementPropertyBuilder<TCapability, TProperty>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly RequirementBuilder<TCapability> _parent;
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
     private bool _added;
 
-    internal RequirementPropertyBuilder(RequirementBuilder<TCapability> parent, Expression<Func<TCapability, TProperty>> expression)
-    {
+    internal RequirementPropertyBuilder(RequirementBuilder<TCapability> parent, Expression<Func<TCapability, TProperty>> expression) {
         _parent = parent;
         _chain = new PropertyRuleChain<TCapability, TProperty>(expression);
     }
@@ -28,8 +26,7 @@ public sealed class RequirementPropertyBuilder<TCapability, TProperty>
     /// Creates a null issue condition.
     /// </summary>
     /// <returns>A severity builder for the issue condition.</returns>
-    public RequirementSeverityBuilder<TCapability, TProperty> Null()
-    {
+    public RequirementSeverityBuilder<TCapability, TProperty> Null() {
         return Create(PropertyConditionType.Null);
     }
 
@@ -54,53 +51,45 @@ public sealed class RequirementPropertyBuilder<TCapability, TProperty>
     /// <summary>
     /// Starts a new independent property chain.
     /// </summary>
-    public RequirementPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(Expression<Func<TCapability, TOtherProperty>> expression)
-    {
+    public RequirementPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(Expression<Func<TCapability, TOtherProperty>> expression) {
         ThrowIfEmpty();
         return _parent.Property(expression);
     }
 
     /// <summary>Adds a custom rule instance to the parent requirement.</summary>
-    public RequirementBuilder<TCapability> AddRule(IRule<TCapability> rule)
-    {
+    public RequirementBuilder<TCapability> AddRule(IRule<TCapability> rule) {
         ThrowIfEmpty();
         return _parent.AddRule(rule);
     }
 
     /// <summary>Adds a custom predicate issue condition to the parent requirement.</summary>
-    public RequirementBuilder<TCapability> Rule(string name, Func<TCapability, bool> predicate, RequirementSeverity severity, string? alias = null, string? message = null)
-    {
+    public RequirementBuilder<TCapability> Rule(string name, Func<TCapability, bool> predicate, RequirementSeverity severity, string? alias = null, string? message = null) {
         ThrowIfEmpty();
         return _parent.Rule(name, predicate, severity, alias, message);
     }
 
     /// <summary>Adds an AND group to the parent requirement.</summary>
-    public RequirementBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public RequirementBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ThrowIfEmpty();
         return _parent.And(name, build, alias);
     }
 
     /// <summary>Adds an OR group to the parent requirement.</summary>
-    public RequirementBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public RequirementBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ThrowIfEmpty();
         return _parent.Or(name, build, alias);
     }
 
     /// <summary>Builds the parent requirement.</summary>
-    public Requirement<TCapability> Build()
-    {
+    public Requirement<TCapability> Build() {
         ThrowIfEmpty();
         return _parent.Build();
     }
 
-    internal RequirementPropertyBuilder<TCapability, TProperty> AddCondition(PropertyCondition<TProperty> condition)
-    {
+    internal RequirementPropertyBuilder<TCapability, TProperty> AddCondition(PropertyCondition<TProperty> condition) {
         _chain.Add(condition);
 
-        if (!_added)
-        {
+        if (!_added) {
             _parent.AddRule(_chain);
             _added = true;
         }
@@ -108,20 +97,16 @@ public sealed class RequirementPropertyBuilder<TCapability, TProperty>
         return this;
     }
 
-    private RequirementSeverityBuilder<TCapability, TProperty> Create(TProperty value, ComparisonOperator op)
-    {
+    private RequirementSeverityBuilder<TCapability, TProperty> Create(TProperty value, ComparisonOperator op) {
         return new RequirementSeverityBuilder<TCapability, TProperty>(this, value, op);
     }
 
-    private RequirementSeverityBuilder<TCapability, TProperty> Create(PropertyConditionType conditionType)
-    {
+    private RequirementSeverityBuilder<TCapability, TProperty> Create(PropertyConditionType conditionType) {
         return new RequirementSeverityBuilder<TCapability, TProperty>(this, conditionType);
     }
 
-    private void ThrowIfEmpty()
-    {
-        if (!_chain.HasConditions)
-        {
+    private void ThrowIfEmpty() {
+        if (!_chain.HasConditions) {
             throw new InvalidOperationException($"Property chain '{_chain.PropertyPath}' must contain at least one condition.");
         }
     }
@@ -133,14 +118,12 @@ public sealed class RequirementPropertyBuilder<TCapability, TProperty>
 /// <typeparam name="TCapability">The capability type.</typeparam>
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class GroupPropertyBuilder<TCapability, TProperty>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly GroupBuilder<TCapability> _parent;
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
     private bool _added;
 
-    internal GroupPropertyBuilder(GroupBuilder<TCapability> parent, Expression<Func<TCapability, TProperty>> expression)
-    {
+    internal GroupPropertyBuilder(GroupBuilder<TCapability> parent, Expression<Func<TCapability, TProperty>> expression) {
         _parent = parent;
         _chain = new PropertyRuleChain<TCapability, TProperty>(expression);
     }
@@ -149,8 +132,7 @@ public sealed class GroupPropertyBuilder<TCapability, TProperty>
     /// Creates a null issue condition.
     /// </summary>
     /// <returns>A severity builder for the issue condition.</returns>
-    public GroupSeverityBuilder<TCapability, TProperty> Null()
-    {
+    public GroupSeverityBuilder<TCapability, TProperty> Null() {
         return Create(PropertyConditionType.Null);
     }
 
@@ -173,46 +155,39 @@ public sealed class GroupPropertyBuilder<TCapability, TProperty>
     public GroupSeverityBuilder<TCapability, TProperty> NotEqual(TProperty value) => Create(value, ComparisonOperator.NotEqual);
 
     /// <summary>Starts a new independent property chain.</summary>
-    public GroupPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(Expression<Func<TCapability, TOtherProperty>> expression)
-    {
+    public GroupPropertyBuilder<TCapability, TOtherProperty> Property<TOtherProperty>(Expression<Func<TCapability, TOtherProperty>> expression) {
         ThrowIfEmpty();
         return _parent.Property(expression);
     }
 
     /// <summary>Adds a custom rule instance to the parent group.</summary>
-    public GroupBuilder<TCapability> AddRule(IRule<TCapability> rule)
-    {
+    public GroupBuilder<TCapability> AddRule(IRule<TCapability> rule) {
         ThrowIfEmpty();
         return _parent.AddRule(rule);
     }
 
     /// <summary>Adds a custom predicate issue condition to the parent group.</summary>
-    public GroupBuilder<TCapability> Rule(string name, Func<TCapability, bool> predicate, RequirementSeverity severity, string? alias = null, string? message = null)
-    {
+    public GroupBuilder<TCapability> Rule(string name, Func<TCapability, bool> predicate, RequirementSeverity severity, string? alias = null, string? message = null) {
         ThrowIfEmpty();
         return _parent.Rule(name, predicate, severity, alias, message);
     }
 
     /// <summary>Adds a nested AND group to the parent group.</summary>
-    public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public GroupBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ThrowIfEmpty();
         return _parent.And(name, build, alias);
     }
 
     /// <summary>Adds a nested OR group to the parent group.</summary>
-    public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public GroupBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ThrowIfEmpty();
         return _parent.Or(name, build, alias);
     }
 
-    internal GroupPropertyBuilder<TCapability, TProperty> AddCondition(PropertyCondition<TProperty> condition)
-    {
+    internal GroupPropertyBuilder<TCapability, TProperty> AddCondition(PropertyCondition<TProperty> condition) {
         _chain.Add(condition);
 
-        if (!_added)
-        {
+        if (!_added) {
             _parent.AddRule(_chain);
             _added = true;
         }
@@ -220,20 +195,16 @@ public sealed class GroupPropertyBuilder<TCapability, TProperty>
         return this;
     }
 
-    private GroupSeverityBuilder<TCapability, TProperty> Create(TProperty value, ComparisonOperator op)
-    {
+    private GroupSeverityBuilder<TCapability, TProperty> Create(TProperty value, ComparisonOperator op) {
         return new GroupSeverityBuilder<TCapability, TProperty>(this, value, op);
     }
 
-    private GroupSeverityBuilder<TCapability, TProperty> Create(PropertyConditionType conditionType)
-    {
+    private GroupSeverityBuilder<TCapability, TProperty> Create(PropertyConditionType conditionType) {
         return new GroupSeverityBuilder<TCapability, TProperty>(this, conditionType);
     }
 
-    private void ThrowIfEmpty()
-    {
-        if (!_chain.HasConditions)
-        {
+    private void ThrowIfEmpty() {
+        if (!_chain.HasConditions) {
             throw new InvalidOperationException($"Property chain '{_chain.PropertyPath}' must contain at least one condition.");
         }
     }

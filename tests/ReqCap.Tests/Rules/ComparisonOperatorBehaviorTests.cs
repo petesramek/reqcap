@@ -1,3 +1,5 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
@@ -5,10 +7,7 @@ using ReqCap.Results;
 using ReqCap.Rules;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class ComparisonOperatorBehaviorTests
-{
+public class ComparisonOperatorBehaviorTests {
     public static TheoryData<ComparisonOperator, decimal, decimal, bool> OperatorCases => new()
     {
         { ComparisonOperator.GreaterOrEqual, 10m, 10m, true },
@@ -31,8 +30,7 @@ public class ComparisonOperatorBehaviorTests
         ComparisonOperator op,
         decimal actual,
         decimal expected,
-        bool issueExpected)
-    {
+        bool issueExpected) {
         var rule = new ComparisonRule<ContainerCapability, decimal>(
             x => x.Volume,
             expected,
@@ -51,8 +49,7 @@ public class ComparisonOperatorBehaviorTests
     [InlineData(ComparisonOperator.GreaterThan)]
     [InlineData(ComparisonOperator.LessOrEqual)]
     [InlineData(ComparisonOperator.NotEqual)]
-    public void Evaluate_WhenRootPropertyBuilderOperatorIsUsed_CoversOperatorForwarding(ComparisonOperator op)
-    {
+    public void Evaluate_WhenRootPropertyBuilderOperatorIsUsed_CoversOperatorForwarding(ComparisonOperator op) {
         var requirement = BuildRootRequirement(op);
 
         var result = Evaluator.Evaluate(new ContainerCapability { Volume = 11m }, requirement);
@@ -64,12 +61,10 @@ public class ComparisonOperatorBehaviorTests
     [InlineData(ComparisonOperator.GreaterOrEqual)]
     [InlineData(ComparisonOperator.GreaterThan)]
     [InlineData(ComparisonOperator.LessOrEqual)]
-    public void Evaluate_WhenGroupPropertyBuilderOperatorIsUsed_CoversOperatorForwarding(ComparisonOperator op)
-    {
+    public void Evaluate_WhenGroupPropertyBuilderOperatorIsUsed_CoversOperatorForwarding(ComparisonOperator op) {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 AddGroupCondition(group, op);
             })
             .Build();
@@ -79,14 +74,12 @@ public class ComparisonOperatorBehaviorTests
         result.Should().NotBeNull();
     }
 
-    private static ReqCap.Requirements.Requirement<ContainerCapability> BuildRootRequirement(ComparisonOperator op)
-    {
+    private static ReqCap.Requirements.Requirement<ContainerCapability> BuildRootRequirement(ComparisonOperator op) {
         var property = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume);
 
-        return op switch
-        {
+        return op switch {
             ComparisonOperator.GreaterOrEqual => property.GreaterOrEqual(10m).AsError("VolumeIssue").Build(),
             ComparisonOperator.GreaterThan => property.GreaterThan(10m).AsError("VolumeIssue").Build(),
             ComparisonOperator.LessOrEqual => property.LessOrEqual(10m).AsError("VolumeIssue").Build(),
@@ -95,12 +88,10 @@ public class ComparisonOperatorBehaviorTests
         };
     }
 
-    private static void AddGroupCondition(ReqCap.Builder.GroupBuilder<ContainerCapability> group, ComparisonOperator op)
-    {
+    private static void AddGroupCondition(ReqCap.Builder.GroupBuilder<ContainerCapability> group, ComparisonOperator op) {
         var property = group.Property(x => x.Volume);
 
-        _ = op switch
-        {
+        _ = op switch {
             ComparisonOperator.GreaterOrEqual => property.GreaterOrEqual(10m).AsError("VolumeIssue"),
             ComparisonOperator.GreaterThan => property.GreaterThan(10m).AsError("VolumeIssue"),
             ComparisonOperator.LessOrEqual => property.LessOrEqual(10m).AsError("VolumeIssue"),

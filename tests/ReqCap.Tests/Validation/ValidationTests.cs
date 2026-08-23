@@ -1,18 +1,15 @@
-using System.Linq.Expressions;
+namespace ReqCap.Tests.Validation;
+
 using FluentAssertions;
 using ReqCap.Groups;
 using ReqCap.Requirements;
 using ReqCap.Results;
-using ReqCap.Rules;
 using ReqCap.Tests.Fixtures;
+using System.Linq.Expressions;
 
-namespace ReqCap.Tests.Validation;
-
-public class ValidationTests
-{
+public class ValidationTests {
     [Fact]
-    public void Rule_WhenNameIsWhitespace_ThrowsArgumentException()
-    {
+    public void Rule_WhenNameIsWhitespace_ThrowsArgumentException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Rule(" ", x => true, RequirementSeverity.Error);
@@ -21,8 +18,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Rule_WhenPredicateIsNull_ThrowsArgumentNullException()
-    {
+    public void Rule_WhenPredicateIsNull_ThrowsArgumentNullException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Rule("Invalid", null!, RequirementSeverity.Error);
@@ -31,8 +27,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Rule_WhenSeverityIsInvalid_ThrowsArgumentOutOfRangeException()
-    {
+    public void Rule_WhenSeverityIsInvalid_ThrowsArgumentOutOfRangeException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Rule("Invalid", x => true, (RequirementSeverity)999);
@@ -41,8 +36,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void And_WhenBuildIsNull_ThrowsArgumentNullException()
-    {
+    public void And_WhenBuildIsNull_ThrowsArgumentNullException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .And("Group", null!);
@@ -51,8 +45,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void And_WhenNameIsWhitespace_ThrowsArgumentException()
-    {
+    public void And_WhenNameIsWhitespace_ThrowsArgumentException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .And(" ", group => group.Rule("Invalid", x => true, RequirementSeverity.Error));
@@ -61,8 +54,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void And_WhenGroupIsEmpty_ThrowsInvalidOperationException()
-    {
+    public void And_WhenGroupIsEmpty_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .And("Empty", group => { });
@@ -71,8 +63,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Or_WhenGroupIsEmpty_ThrowsInvalidOperationException()
-    {
+    public void Or_WhenGroupIsEmpty_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Or("Empty", group => { });
@@ -81,8 +72,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Property_WhenExpressionIsNull_ThrowsArgumentNullException()
-    {
+    public void Property_WhenExpressionIsNull_ThrowsArgumentNullException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property<decimal>(null!);
@@ -91,8 +81,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Property_WhenExpressionIsNotMemberPath_ThrowsArgumentException()
-    {
+    public void Property_WhenExpressionIsNotMemberPath_ThrowsArgumentException() {
         Expression<Func<ContainerCapability, decimal>> expression = x => x.Volume + 1m;
 
         var act = () => Requirement
@@ -103,8 +92,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void PropertyChain_WhenBuildIsCalledWithoutCondition_ThrowsInvalidOperationException()
-    {
+    public void PropertyChain_WhenBuildIsCalledWithoutCondition_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -114,8 +102,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void PropertyChain_WhenNewPropertyIsStartedWithoutCondition_ThrowsInvalidOperationException()
-    {
+    public void PropertyChain_WhenNewPropertyIsStartedWithoutCondition_ThrowsInvalidOperationException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -125,8 +112,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void AsError_WhenNameIsWhitespace_ThrowsArgumentException()
-    {
+    public void AsError_WhenNameIsWhitespace_ThrowsArgumentException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -137,8 +123,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void AsWarning_WhenAliasIsWhitespace_ThrowsArgumentException()
-    {
+    public void AsWarning_WhenAliasIsWhitespace_ThrowsArgumentException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -149,8 +134,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Comparison_WhenExpectedValueIsNull_ThrowsArgumentNullException()
-    {
+    public void Comparison_WhenExpectedValueIsNull_ThrowsArgumentNullException() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -161,16 +145,14 @@ public class ValidationTests
     }
 
     [Fact]
-    public void RuleGroup_WhenOperatorIsInvalid_ThrowsArgumentOutOfRangeException()
-    {
+    public void RuleGroup_WhenOperatorIsInvalid_ThrowsArgumentOutOfRangeException() {
         var act = () => new RuleGroup<ContainerCapability>((LogicalOperator)999);
 
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
 
     [Fact]
-    public void RuleGroup_WhenEvaluatedWithoutRules_ThrowsInvalidOperationException()
-    {
+    public void RuleGroup_WhenEvaluatedWithoutRules_ThrowsInvalidOperationException() {
         var group = new RuleGroup<ContainerCapability>(LogicalOperator.And);
 
         var act = () => group.Evaluate(new ContainerCapability());

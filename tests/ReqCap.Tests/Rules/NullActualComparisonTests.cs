@@ -1,21 +1,18 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Abstractions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class NullActualComparisonTests
-{
-    private sealed class NullableCapability : ICapability
-    {
+public class NullActualComparisonTests {
+    private sealed class NullableCapability : ICapability {
         public decimal? Volume { get; init; }
     }
 
     [Fact]
-    public void Evaluate_WhenReferencePropertyIsNullAndComparedForEquality_ReturnsAllowed()
-    {
+    public void Evaluate_WhenReferencePropertyIsNullAndComparedForEquality_ReturnsAllowed() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Material)
@@ -31,8 +28,7 @@ public class NullActualComparisonTests
     }
 
     [Fact]
-    public void Evaluate_WhenNullableValuePropertyIsNullAndComparedWithOrderedOperator_ReturnsAllowed()
-    {
+    public void Evaluate_WhenNullableValuePropertyIsNullAndComparedWithOrderedOperator_ReturnsAllowed() {
         var requirement = Requirement
             .For<NullableCapability>()
             .Property(x => x.Volume)

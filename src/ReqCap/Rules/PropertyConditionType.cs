@@ -1,7 +1,6 @@
 namespace ReqCap.Rules;
 
-internal enum PropertyConditionType
-{
+internal enum PropertyConditionType {
     Comparison,
     Null,
 }

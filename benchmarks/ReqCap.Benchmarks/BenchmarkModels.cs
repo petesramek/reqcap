@@ -1,9 +1,8 @@
-using ReqCap.Abstractions;
-
 namespace ReqCap.Benchmarks;
 
-public sealed class BenchmarkCapability : ICapability
-{
+using ReqCap.Abstractions;
+
+public sealed class BenchmarkCapability : ICapability {
     public decimal Volume { get; init; }
 
     public decimal? OptionalVolume { get; init; }
@@ -17,7 +16,6 @@ public sealed class BenchmarkCapability : ICapability
     public NestedBenchmarkCapability? Nested { get; init; }
 }
 
-public sealed class NestedBenchmarkCapability
-{
+public sealed class NestedBenchmarkCapability {
     public string? Code { get; init; }
 }

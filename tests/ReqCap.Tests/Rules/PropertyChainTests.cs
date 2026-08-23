@@ -1,15 +1,13 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class PropertyChainTests
-{
+public class PropertyChainTests {
     [Fact]
-    public void Evaluate_WhenFirstConditionInPropertyChainMatches_ReturnsOnlyFirstIssue()
-    {
+    public void Evaluate_WhenFirstConditionInPropertyChainMatches_ReturnsOnlyFirstIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -27,8 +25,7 @@ public class PropertyChainTests
     }
 
     [Fact]
-    public void Evaluate_WhenFirstConditionDoesNotMatchButSecondMatches_ReturnsSecondIssue()
-    {
+    public void Evaluate_WhenFirstConditionDoesNotMatchButSecondMatches_ReturnsSecondIssue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -45,8 +42,7 @@ public class PropertyChainTests
     }
 
     [Fact]
-    public void Evaluate_WhenSamePropertyIsDeclaredSeparately_ReturnsBothIndependentIssues()
-    {
+    public void Evaluate_WhenSamePropertyIsDeclaredSeparately_ReturnsBothIndependentIssues() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)

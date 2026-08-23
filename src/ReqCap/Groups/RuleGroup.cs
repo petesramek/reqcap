@@ -1,16 +1,15 @@
+namespace ReqCap.Groups;
+
 using ReqCap.Abstractions;
 using ReqCap.Internal;
 using ReqCap.Results;
-
-namespace ReqCap.Groups;
 
 /// <summary>
 /// Represents a logical group of rules.
 /// </summary>
 /// <typeparam name="TCapability">The capability type.</typeparam>
 public sealed class RuleGroup<TCapability> : IRule<TCapability>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly List<IRule<TCapability>> _rules = [];
     private readonly LogicalOperator _operator;
     private readonly string? _name;
@@ -22,8 +21,7 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
     /// <param name="op">The logical operator.</param>
     /// <param name="name">The optional group name.</param>
     /// <param name="alias">The optional group alias.</param>
-    public RuleGroup(LogicalOperator op, string? name = null, string? alias = null)
-    {
+    public RuleGroup(LogicalOperator op, string? name = null, string? alias = null) {
         ArgumentValidation.ThrowIfInvalidEnum(op, nameof(op));
         ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
         ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
@@ -39,32 +37,27 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
     /// Adds a rule to the group.
     /// </summary>
     /// <param name="rule">The rule to add.</param>
-    public void Add(IRule<TCapability> rule)
-    {
+    public void Add(IRule<TCapability> rule) {
         ArgumentNullException.ThrowIfNull(rule);
         _rules.Add(rule);
     }
 
     /// <inheritdoc />
-    public EvaluationResult Evaluate(TCapability capability)
-    {
+    public EvaluationResult Evaluate(TCapability capability) {
         ThrowIfEmpty();
 
-        return _operator switch
-        {
+        return _operator switch {
             LogicalOperator.And => EvaluateAnd(capability),
             LogicalOperator.Or => EvaluateOr(capability),
             _ => throw new InvalidOperationException($"Unsupported logical operator '{_operator}'."),
         };
     }
 
-    private EvaluationResult EvaluateAnd(TCapability capability)
-    {
+    private EvaluationResult EvaluateAnd(TCapability capability) {
         var errors = new List<Issue>();
         var warnings = new List<Issue>();
 
-        foreach (var rule in _rules)
-        {
+        foreach (var rule in _rules) {
             var result = rule.Evaluate(capability);
             errors.AddRange(result.Errors);
             warnings.AddRange(result.Warnings);
@@ -72,25 +65,21 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
 
         Tag(errors, warnings);
 
-        return new EvaluationResult
-        {
+        return new EvaluationResult {
             Allowed = errors.Count == 0,
             Errors = errors,
             Warnings = warnings,
         };
     }
 
-    private EvaluationResult EvaluateOr(TCapability capability)
-    {
+    private EvaluationResult EvaluateOr(TCapability capability) {
         var errors = new List<Issue>();
         var warnings = new List<Issue>();
 
-        foreach (var rule in _rules)
-        {
+        foreach (var rule in _rules) {
             var result = rule.Evaluate(capability);
 
-            if (result.Allowed)
-            {
+            if (result.Allowed) {
                 return EvaluationResult.Ok();
             }
 
@@ -100,28 +89,23 @@ public sealed class RuleGroup<TCapability> : IRule<TCapability>
 
         Tag(errors, warnings);
 
-        return new EvaluationResult
-        {
+        return new EvaluationResult {
             Allowed = false,
             Errors = errors,
             Warnings = warnings,
         };
     }
 
-    private void ThrowIfEmpty()
-    {
-        if (_rules.Count == 0)
-        {
+    private void ThrowIfEmpty() {
+        if (_rules.Count == 0) {
             throw new InvalidOperationException(_name is null
                 ? "Group must contain at least one rule."
                 : $"Group '{_name}' must contain at least one rule.");
         }
     }
 
-    private void Tag(IReadOnlyList<Issue> errors, IReadOnlyList<Issue> warnings)
-    {
-        foreach (var issue in errors.Concat(warnings))
-        {
+    private void Tag(IReadOnlyList<Issue> errors, IReadOnlyList<Issue> warnings) {
+        foreach (var issue in errors.Concat(warnings)) {
             issue.GroupName ??= _name;
             issue.GroupAlias ??= _alias;
         }

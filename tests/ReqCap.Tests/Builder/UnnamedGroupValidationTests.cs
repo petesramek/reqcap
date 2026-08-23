@@ -1,14 +1,12 @@
+namespace ReqCap.Tests.Builder;
+
 using FluentAssertions;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Builder;
-
-public class UnnamedGroupValidationTests
-{
+public class UnnamedGroupValidationTests {
     [Fact]
-    public void And_WhenRootGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage()
-    {
+    public void And_WhenRootGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .And(null, group => { });
@@ -18,8 +16,7 @@ public class UnnamedGroupValidationTests
     }
 
     [Fact]
-    public void Or_WhenRootGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage()
-    {
+    public void Or_WhenRootGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage() {
         var act = () => Requirement
             .For<ContainerCapability>()
             .Or(null, group => { });
@@ -29,12 +26,10 @@ public class UnnamedGroupValidationTests
     }
 
     [Fact]
-    public void And_WhenNestedGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage()
-    {
+    public void And_WhenNestedGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage() {
         var act = () => Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.And(null, nested => { });
             });
 
@@ -43,12 +38,10 @@ public class UnnamedGroupValidationTests
     }
 
     [Fact]
-    public void Or_WhenNestedGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage()
-    {
+    public void Or_WhenNestedGroupIsUnnamedAndEmpty_ThrowsGenericGroupMessage() {
         var act = () => Requirement
             .For<ContainerCapability>()
-            .And("Root", group =>
-            {
+            .And("Root", group => {
                 group.Or(null, nested => { });
             });
 

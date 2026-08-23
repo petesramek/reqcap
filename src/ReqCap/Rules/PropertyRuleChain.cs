@@ -1,8 +1,8 @@
-using System.Linq.Expressions;
+namespace ReqCap.Rules;
+
 using ReqCap.Abstractions;
 using ReqCap.Results;
-
-namespace ReqCap.Rules;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Represents an ordered chain of issue conditions for a single property.
@@ -10,8 +10,7 @@ namespace ReqCap.Rules;
 /// <typeparam name="TCapability">The capability type.</typeparam>
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapability>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly Func<TCapability, TProperty> _getter;
     private readonly List<PropertyCondition<TProperty>> _conditions = [];
 
@@ -19,8 +18,7 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
     /// Initializes a new instance of the <see cref="PropertyRuleChain{TCapability, TProperty}" /> class.
     /// </summary>
     /// <param name="expression">The property expression.</param>
-    public PropertyRuleChain(Expression<Func<TCapability, TProperty>> expression)
-    {
+    public PropertyRuleChain(Expression<Func<TCapability, TProperty>> expression) {
         ArgumentNullException.ThrowIfNull(expression);
         PropertyPath = ExpressionPath.GetPropertyPath(expression.Body);
         _getter = expression.Compile();
@@ -33,38 +31,30 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
 
     internal bool HasConditions => _conditions.Count > 0;
 
-    internal void Add(PropertyCondition<TProperty> condition)
-    {
+    internal void Add(PropertyCondition<TProperty> condition) {
         ArgumentNullException.ThrowIfNull(condition);
         _conditions.Add(condition);
     }
 
     /// <inheritdoc />
-    public EvaluationResult Evaluate(TCapability capability)
-    {
-        if (_conditions.Count == 0)
-        {
+    public EvaluationResult Evaluate(TCapability capability) {
+        if (_conditions.Count == 0) {
             return EvaluationResult.Ok();
         }
 
         TProperty actual;
 
-        try
-        {
+        try {
             actual = _getter(capability);
-        }
-        catch (NullReferenceException)
-        {
+        } catch (NullReferenceException) {
             var first = _conditions[0];
             return CreateIssueResult(
                 first,
                 $"{PropertyPath} could not be evaluated because part of the property path was null.");
         }
 
-        foreach (var condition in _conditions)
-        {
-            if (condition.Matches(actual))
-            {
+        foreach (var condition in _conditions) {
+            if (condition.Matches(actual)) {
                 return CreateIssueResult(
                     condition,
                     condition.Message ?? GetDefaultMessage(condition));
@@ -74,17 +64,14 @@ public sealed class PropertyRuleChain<TCapability, TProperty> : IRule<TCapabilit
         return EvaluationResult.Ok();
     }
 
-    private string GetDefaultMessage(PropertyCondition<TProperty> condition)
-    {
+    private string GetDefaultMessage(PropertyCondition<TProperty> condition) {
         return condition.Type == PropertyConditionType.Null
             ? $"{PropertyPath} matched condition Null."
             : $"{PropertyPath} matched condition {condition.Operator} {condition.Expected}.";
     }
 
-    private EvaluationResult CreateIssueResult(PropertyCondition<TProperty> condition, string message)
-    {
-        var issue = new Issue
-        {
+    private EvaluationResult CreateIssueResult(PropertyCondition<TProperty> condition, string message) {
+        var issue = new Issue {
             Property = PropertyPath,
             Message = message,
             Severity = condition.Severity,

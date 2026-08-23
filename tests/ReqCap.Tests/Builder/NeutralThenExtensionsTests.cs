@@ -6,13 +6,11 @@ using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-public class NeutralThenExtensionsTests
-{
+public class NeutralThenExtensionsTests {
     private sealed record Projection(string RuleName, string? PropertyPath, string? Message, string? GroupName);
 
     [Fact]
-    public void Evaluate_WhenRequirementPropertyConditionUsesThen_ProjectsNeutralMatch()
-    {
+    public void Evaluate_WhenRequirementPropertyConditionUsesThen_ProjectsNeutralMatch() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -34,12 +32,10 @@ public class NeutralThenExtensionsTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupPropertyConditionUsesThen_ProjectsNeutralMatchWithGroupMetadata()
-    {
+    public void Evaluate_WhenGroupPropertyConditionUsesThen_ProjectsNeutralMatchWithGroupMetadata() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("ContainerRules", group =>
-            {
+            .And("ContainerRules", group => {
                 group.Property(x => x.Material)
                     .Null()
                     .Then("MaterialMissing", message: "Material should be provided.");
@@ -60,8 +56,7 @@ public class NeutralThenExtensionsTests
     }
 
     [Fact]
-    public void Satisfies_WhenConditionCompletedWithThenDoesNotMatch_ReturnsTrue()
-    {
+    public void Satisfies_WhenConditionCompletedWithThenDoesNotMatch_ReturnsTrue() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -75,8 +70,7 @@ public class NeutralThenExtensionsTests
     }
 
     [Fact]
-    public void Satisfies_WhenConditionCompletedWithThenMatches_ReturnsFalse()
-    {
+    public void Satisfies_WhenConditionCompletedWithThenMatches_ReturnsFalse() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)

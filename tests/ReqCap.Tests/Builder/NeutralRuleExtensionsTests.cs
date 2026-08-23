@@ -6,13 +6,11 @@ using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Tests.Fixtures;
 
-public class NeutralRuleExtensionsTests
-{
+public class NeutralRuleExtensionsTests {
     private sealed record Projection(string RuleName, string? PropertyPath, string? Message, string? GroupName);
 
     [Fact]
-    public void Evaluate_WhenRequirementRuleMatches_ProjectsNeutralMatch()
-    {
+    public void Evaluate_WhenRequirementRuleMatches_ProjectsNeutralMatch() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Rule("DrainageMissing", x => !x.HasDrainage, message: "Drainage should be provided.")
@@ -32,8 +30,7 @@ public class NeutralRuleExtensionsTests
     }
 
     [Fact]
-    public void Evaluate_WhenRequirementPropertyBuilderRuleMatches_ProjectsNeutralMatch()
-    {
+    public void Evaluate_WhenRequirementPropertyBuilderRuleMatches_ProjectsNeutralMatch() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)
@@ -56,12 +53,10 @@ public class NeutralRuleExtensionsTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupRuleMatches_ProjectsNeutralMatchWithGroupMetadata()
-    {
+    public void Evaluate_WhenGroupRuleMatches_ProjectsNeutralMatchWithGroupMetadata() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("ContainerRules", group =>
-            {
+            .And("ContainerRules", group => {
                 group.Rule("DrainageMissing", x => !x.HasDrainage, message: "Drainage should be provided.");
             })
             .Build();
@@ -80,12 +75,10 @@ public class NeutralRuleExtensionsTests
     }
 
     [Fact]
-    public void Evaluate_WhenGroupPropertyBuilderRuleMatches_ProjectsNeutralMatchWithGroupMetadata()
-    {
+    public void Evaluate_WhenGroupPropertyBuilderRuleMatches_ProjectsNeutralMatchWithGroupMetadata() {
         var requirement = Requirement
             .For<ContainerCapability>()
-            .And("ContainerRules", group =>
-            {
+            .And("ContainerRules", group => {
                 group.Property(x => x.Volume)
                     .GreaterThan(100m)
                     .Then("LargeVolume")

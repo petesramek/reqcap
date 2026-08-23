@@ -3,17 +3,14 @@ namespace ReqCap.Internal;
 /// <summary>
 /// Provides internal argument validation helpers.
 /// </summary>
-internal static class ArgumentValidation
-{
+internal static class ArgumentValidation {
     /// <summary>
     /// Throws when the supplied value is not <see langword="null" /> but is empty or whitespace.
     /// </summary>
     /// <param name="value">The value to validate.</param>
     /// <param name="paramName">The name of the parameter being validated.</param>
-    public static void ThrowIfWhiteSpace(string? value, string paramName)
-    {
-        if (value is not null && string.IsNullOrWhiteSpace(value))
-        {
+    public static void ThrowIfWhiteSpace(string? value, string paramName) {
+        if (value is not null && string.IsNullOrWhiteSpace(value)) {
             throw new ArgumentException("Value cannot be empty or whitespace.", paramName);
         }
     }
@@ -25,10 +22,8 @@ internal static class ArgumentValidation
     /// <param name="value">The enum value to validate.</param>
     /// <param name="paramName">The name of the parameter being validated.</param>
     public static void ThrowIfInvalidEnum<TEnum>(TEnum value, string paramName)
-        where TEnum : struct, Enum
-    {
-        if (!Enum.IsDefined(value))
-        {
+        where TEnum : struct, Enum {
+        if (!Enum.IsDefined(value)) {
             throw new ArgumentOutOfRangeException(
                 paramName,
                 value,

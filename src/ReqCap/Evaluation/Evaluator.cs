@@ -7,8 +7,7 @@ using ReqCap.Results;
 /// <summary>
 /// Evaluates capabilities against requirements.
 /// </summary>
-public static class Evaluator
-{
+public static class Evaluator {
     /// <summary>
     /// Evaluates a capability against a requirement.
     /// </summary>
@@ -19,23 +18,20 @@ public static class Evaluator
     public static EvaluationResult Evaluate<TCapability>(
         TCapability capability,
         Requirement<TCapability> requirement)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(capability);
         ArgumentNullException.ThrowIfNull(requirement);
 
         var errors = new List<Issue>();
         var warnings = new List<Issue>();
 
-        foreach (var rule in requirement.Rules)
-        {
+        foreach (var rule in requirement.Rules) {
             var result = rule.Evaluate(capability);
             errors.AddRange(result.Errors);
             warnings.AddRange(result.Warnings);
         }
 
-        return new EvaluationResult
-        {
+        return new EvaluationResult {
             Allowed = errors.Count == 0,
             Errors = errors,
             Warnings = warnings,
@@ -52,16 +48,13 @@ public static class Evaluator
     public static bool Satisfies<TCapability>(
         TCapability capability,
         Requirement<TCapability> requirement)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(capability);
         ArgumentNullException.ThrowIfNull(requirement);
 
-        foreach (var rule in requirement.Rules)
-        {
+        foreach (var rule in requirement.Rules) {
             var result = rule.Evaluate(capability);
-            if (result.Errors.Count > 0 || result.Warnings.Count > 0)
-            {
+            if (result.Errors.Count > 0 || result.Warnings.Count > 0) {
                 return false;
             }
         }
@@ -82,16 +75,14 @@ public static class Evaluator
         TCapability capability,
         Requirement<TCapability> requirement,
         Func<RequirementMatch, TResult> resultFactory)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(capability);
         ArgumentNullException.ThrowIfNull(requirement);
         ArgumentNullException.ThrowIfNull(resultFactory);
 
         List<TResult>? results = null;
 
-        foreach (var rule in requirement.Rules)
-        {
+        foreach (var rule in requirement.Rules) {
             var result = rule.Evaluate(capability);
             Add(results: ref results, result.Errors, resultFactory);
             Add(results: ref results, result.Warnings, resultFactory);
@@ -105,19 +96,15 @@ public static class Evaluator
     private static void Add<TResult>(
         ref List<TResult>? results,
         IReadOnlyList<Issue> issues,
-        Func<RequirementMatch, TResult> resultFactory)
-    {
-        foreach (var issue in issues)
-        {
+        Func<RequirementMatch, TResult> resultFactory) {
+        foreach (var issue in issues) {
             results ??= [];
             results.Add(resultFactory(ToMatch(issue)));
         }
     }
 
-    private static RequirementMatch ToMatch(Issue issue)
-    {
-        return new RequirementMatch
-        {
+    private static RequirementMatch ToMatch(Issue issue) {
+        return new RequirementMatch {
             RuleName = issue.RuleName ?? string.Empty,
             RuleAlias = issue.RuleAlias,
             PropertyPath = string.IsNullOrEmpty(issue.Property) ? null : issue.Property,

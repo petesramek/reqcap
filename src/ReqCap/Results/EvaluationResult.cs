@@ -3,10 +3,8 @@ namespace ReqCap.Results;
 /// <summary>
 /// Represents the result of evaluating a requirement.
 /// </summary>
-public sealed class EvaluationResult
-{
-    private static readonly EvaluationResult OkResult = new()
-    {
+public sealed class EvaluationResult {
+    private static readonly EvaluationResult OkResult = new() {
         Allowed = true,
         Errors = Array.Empty<Issue>(),
         Warnings = Array.Empty<Issue>(),
@@ -31,8 +29,7 @@ public sealed class EvaluationResult
     /// Creates a successful evaluation result.
     /// </summary>
     /// <returns>A successful evaluation result.</returns>
-    public static EvaluationResult Ok()
-    {
+    public static EvaluationResult Ok() {
         return OkResult;
     }
 
@@ -41,12 +38,10 @@ public sealed class EvaluationResult
     /// </summary>
     /// <param name="issue">The issue to include in the result.</param>
     /// <returns>An evaluation result containing the issue.</returns>
-    public static EvaluationResult FromIssue(Issue issue)
-    {
+    public static EvaluationResult FromIssue(Issue issue) {
         ArgumentNullException.ThrowIfNull(issue);
 
-        return new EvaluationResult
-        {
+        return new EvaluationResult {
             Allowed = issue.Severity != RequirementSeverity.Error,
             Errors = issue.Severity == RequirementSeverity.Error
                 ? new[] { issue }

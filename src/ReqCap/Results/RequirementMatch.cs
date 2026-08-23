@@ -3,8 +3,7 @@ namespace ReqCap.Results;
 /// <summary>
 /// Represents a neutral rule match that can be projected into a consumer-defined result object.
 /// </summary>
-public sealed class RequirementMatch
-{
+public sealed class RequirementMatch {
     /// <summary>
     /// Gets the matched rule name.
     /// </summary>

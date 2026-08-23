@@ -3,8 +3,7 @@ namespace ReqCap.Results;
 /// <summary>
 /// Describes an error or warning produced by evaluation.
 /// </summary>
-public sealed class Issue
-{
+public sealed class Issue {
     /// <summary>
     /// Gets the property path associated with the issue.
     /// </summary>

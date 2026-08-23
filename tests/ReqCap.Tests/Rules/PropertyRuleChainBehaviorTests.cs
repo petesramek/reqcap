@@ -1,3 +1,5 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Abstractions;
 using ReqCap.Evaluation;
@@ -5,23 +7,17 @@ using ReqCap.Requirements;
 using ReqCap.Rules;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class PropertyRuleChainBehaviorTests
-{
-    private sealed class NestedCapability : ICapability
-    {
+public class PropertyRuleChainBehaviorTests {
+    private sealed class NestedCapability : ICapability {
         public NestedValue? Child { get; init; }
     }
 
-    private sealed class NestedValue
-    {
+    private sealed class NestedValue {
         public decimal Value { get; init; }
     }
 
     [Fact]
-    public void Evaluate_WhenPropertyRuleChainHasNoConditions_ReturnsAllowed()
-    {
+    public void Evaluate_WhenPropertyRuleChainHasNoConditions_ReturnsAllowed() {
         var chain = new PropertyRuleChain<ContainerCapability, decimal>(x => x.Volume);
 
         var result = chain.Evaluate(new ContainerCapability { Volume = 5m });
@@ -32,8 +28,7 @@ public class PropertyRuleChainBehaviorTests
     }
 
     [Fact]
-    public void Evaluate_WhenNestedPropertyPathContainsNull_ReturnsIssueForPropertyPath()
-    {
+    public void Evaluate_WhenNestedPropertyPathContainsNull_ReturnsIssueForPropertyPath() {
         var requirement = Requirement
             .For<NestedCapability>()
             .Property(x => x.Child!.Value)
@@ -51,8 +46,7 @@ public class PropertyRuleChainBehaviorTests
     }
 
     [Fact]
-    public void Evaluate_WhenNoPropertyConditionMatches_ReturnsAllowed()
-    {
+    public void Evaluate_WhenNoPropertyConditionMatches_ReturnsAllowed() {
         var requirement = Requirement
             .For<ContainerCapability>()
             .Property(x => x.Volume)

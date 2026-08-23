@@ -1,15 +1,13 @@
+namespace ReqCap.Tests.Rules;
+
 using FluentAssertions;
 using ReqCap.Results;
 using ReqCap.Rules;
 using ReqCap.Tests.Fixtures;
 
-namespace ReqCap.Tests.Rules;
-
-public class PredicateRuleViolationSemanticsTests
-{
+public class PredicateRuleViolationSemanticsTests {
     [Fact]
-    public void Evaluate_WhenPredicateReturnsTrue_ReturnsIssue()
-    {
+    public void Evaluate_WhenPredicateReturnsTrue_ReturnsIssue() {
         var rule = new PredicateRule<ContainerCapability>(
             "InvalidVolume",
             x => x.Volume < 7m,
@@ -22,8 +20,7 @@ public class PredicateRuleViolationSemanticsTests
     }
 
     [Fact]
-    public void Evaluate_WhenPredicateReturnsFalse_ReturnsAllowed()
-    {
+    public void Evaluate_WhenPredicateReturnsFalse_ReturnsAllowed() {
         var rule = new PredicateRule<ContainerCapability>(
             "InvalidVolume",
             x => x.Volume < 7m,

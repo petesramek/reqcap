@@ -1,27 +1,25 @@
-using System.Linq.Expressions;
+namespace ReqCap.Builder;
+
 using ReqCap.Abstractions;
 using ReqCap.Groups;
 using ReqCap.Internal;
 using ReqCap.Requirements;
 using ReqCap.Results;
 using ReqCap.Rules;
-
-namespace ReqCap.Builder;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Builds requirements for a capability type.
 /// </summary>
 /// <typeparam name="TCapability">The capability type.</typeparam>
 public sealed class RequirementBuilder<TCapability>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly List<IRule<TCapability>> _rules = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RequirementBuilder{TCapability}" /> class.
     /// </summary>
-    internal RequirementBuilder()
-    {
+    internal RequirementBuilder() {
     }
 
     /// <summary>
@@ -29,8 +27,7 @@ public sealed class RequirementBuilder<TCapability>
     /// </summary>
     /// <param name="rule">The rule to add.</param>
     /// <returns>The current requirement builder.</returns>
-    public RequirementBuilder<TCapability> AddRule(IRule<TCapability> rule)
-    {
+    public RequirementBuilder<TCapability> AddRule(IRule<TCapability> rule) {
         ArgumentNullException.ThrowIfNull(rule);
         _rules.Add(rule);
         return this;
@@ -50,8 +47,7 @@ public sealed class RequirementBuilder<TCapability>
         Func<TCapability, bool> predicate,
         RequirementSeverity severity,
         string? alias = null,
-        string? message = null)
-    {
+        string? message = null) {
         return AddRule(new PredicateRule<TCapability>(
             name,
             predicate,
@@ -67,8 +63,7 @@ public sealed class RequirementBuilder<TCapability>
     /// <param name="expression">The property expression.</param>
     /// <returns>A property chain builder.</returns>
     public RequirementPropertyBuilder<TCapability, TProperty> Property<TProperty>(
-        Expression<Func<TCapability, TProperty>> expression)
-    {
+        Expression<Func<TCapability, TProperty>> expression) {
         return new RequirementPropertyBuilder<TCapability, TProperty>(this, expression);
     }
 
@@ -79,8 +74,7 @@ public sealed class RequirementBuilder<TCapability>
     /// <param name="build">The group builder callback.</param>
     /// <param name="alias">The optional group alias.</param>
     /// <returns>The current requirement builder.</returns>
-    public RequirementBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public RequirementBuilder<TCapability> And(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ArgumentNullException.ThrowIfNull(build);
         ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
         ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
@@ -98,8 +92,7 @@ public sealed class RequirementBuilder<TCapability>
     /// <param name="build">The group builder callback.</param>
     /// <param name="alias">The optional group alias.</param>
     /// <returns>The current requirement builder.</returns>
-    public RequirementBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null)
-    {
+    public RequirementBuilder<TCapability> Or(string? name, Action<GroupBuilder<TCapability>> build, string? alias = null) {
         ArgumentNullException.ThrowIfNull(build);
         ArgumentValidation.ThrowIfWhiteSpace(name, nameof(name));
         ArgumentValidation.ThrowIfWhiteSpace(alias, nameof(alias));
@@ -114,15 +107,12 @@ public sealed class RequirementBuilder<TCapability>
     /// Builds the requirement.
     /// </summary>
     /// <returns>The requirement.</returns>
-    public Requirement<TCapability> Build()
-    {
+    public Requirement<TCapability> Build() {
         return new Requirement<TCapability>(_rules);
     }
 
-    private static void ThrowIfEmptyGroup(RuleGroup<TCapability> group, string? name)
-    {
-        if (group.RuleCount == 0)
-        {
+    private static void ThrowIfEmptyGroup(RuleGroup<TCapability> group, string? name) {
+        if (group.RuleCount == 0) {
             throw new InvalidOperationException(name is null
                 ? "Group must contain at least one rule."
                 : $"Group '{name}' must contain at least one rule.");

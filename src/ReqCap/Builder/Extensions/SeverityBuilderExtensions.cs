@@ -5,8 +5,7 @@ using ReqCap.Abstractions;
 /// <summary>
 /// Provides neutral result projection-oriented extensions for severity builders.
 /// </summary>
-public static class SeverityBuilderExtensions
-{
+public static class SeverityBuilderExtensions {
     /// <summary>
     /// Completes the condition as a neutral requirement match.
     /// </summary>
@@ -22,8 +21,7 @@ public static class SeverityBuilderExtensions
         string name,
         string? alias = null,
         string? message = null)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(builder);
 
         return builder.AsError(name, alias, message);
@@ -44,8 +42,7 @@ public static class SeverityBuilderExtensions
         string name,
         string? alias = null,
         string? message = null)
-        where TCapability : ICapability
-    {
+        where TCapability : ICapability {
         ArgumentNullException.ThrowIfNull(builder);
 
         return builder.AsError(name, alias, message);

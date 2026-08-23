@@ -1,15 +1,13 @@
+namespace ReqCap.Benchmarks;
+
 using BenchmarkDotNet.Attributes;
 using ReqCap.Evaluation;
 using ReqCap.Requirements;
 using ReqCap.Results;
 
-namespace ReqCap.Benchmarks;
-
 [MemoryDiagnoser]
-public class RequirementEvaluationBenchmarks
-{
-    private static readonly BenchmarkCapability PassingCapability = new()
-    {
+public class RequirementEvaluationBenchmarks {
+    private static readonly BenchmarkCapability PassingCapability = new() {
         Volume = 10m,
         OptionalVolume = 10m,
         Material = "Plastic",
@@ -18,8 +16,7 @@ public class RequirementEvaluationBenchmarks
         Nested = new NestedBenchmarkCapability { Code = "Known" },
     };
 
-    private static readonly BenchmarkCapability FailingCapability = new()
-    {
+    private static readonly BenchmarkCapability FailingCapability = new() {
         Volume = 5m,
         OptionalVolume = null,
         Material = null,
@@ -28,8 +25,7 @@ public class RequirementEvaluationBenchmarks
         Nested = null,
     };
 
-    private static readonly BenchmarkCapability LargeVolumeCapability = new()
-    {
+    private static readonly BenchmarkCapability LargeVolumeCapability = new() {
         Volume = 150m,
         OptionalVolume = 150m,
         Material = "Plastic",
@@ -38,8 +34,7 @@ public class RequirementEvaluationBenchmarks
         Nested = new NestedBenchmarkCapability { Code = "Known" },
     };
 
-    private static readonly BenchmarkCapability MiddleVolumeCapability = new()
-    {
+    private static readonly BenchmarkCapability MiddleVolumeCapability = new() {
         Volume = 50m,
         OptionalVolume = 50m,
         Material = "Plastic",
@@ -83,8 +78,7 @@ public class RequirementEvaluationBenchmarks
 
     private static readonly Requirement<BenchmarkCapability> AndGroupAllPass = Requirement
         .For<BenchmarkCapability>()
-        .And("ContainerRules", group =>
-        {
+        .And("ContainerRules", group => {
             group.Property(x => x.Volume)
                 .LessThan(7m)
                 .AsError("MinimumVolume");
@@ -97,8 +91,7 @@ public class RequirementEvaluationBenchmarks
 
     private static readonly Requirement<BenchmarkCapability> OrGroupFirstPasses = Requirement
         .For<BenchmarkCapability>()
-        .Or("ContainerAlternatives", group =>
-        {
+        .Or("ContainerAlternatives", group => {
             group.Property(x => x.Volume)
                 .LessThan(7m)
                 .AsError("MinimumVolume");
@@ -111,14 +104,12 @@ public class RequirementEvaluationBenchmarks
 
     private static readonly Requirement<BenchmarkCapability> NestedGroups = Requirement
         .For<BenchmarkCapability>()
-        .And("Root", group =>
-        {
+        .And("Root", group => {
             group.Property(x => x.Volume)
                 .LessThan(7m)
                 .AsError("MinimumVolume");
 
-            group.Or("MaterialRules", nested =>
-            {
+            group.Or("MaterialRules", nested => {
                 nested.Property(x => x.Material)
                     .Null()
                     .AsError("MaterialRequired");
@@ -131,101 +122,84 @@ public class RequirementEvaluationBenchmarks
         .Build();
 
     [Benchmark]
-    public object Evaluate_NoRules()
-    {
+    public object Evaluate_NoRules() {
         return Evaluator.Evaluate(PassingCapability, NoRules);
     }
 
     [Benchmark]
-    public object Evaluate_OneRule_NoIssue()
-    {
+    public object Evaluate_OneRule_NoIssue() {
         return Evaluator.Evaluate(PassingCapability, OneRule);
     }
 
     [Benchmark]
-    public object Evaluate_OneRule_Error()
-    {
+    public object Evaluate_OneRule_Error() {
         return Evaluator.Evaluate(FailingCapability, OneRule);
     }
 
     [Benchmark]
-    public object Evaluate_NullCondition_Matches()
-    {
+    public object Evaluate_NullCondition_Matches() {
         return Evaluator.Evaluate(FailingCapability, NullRule);
     }
 
     [Benchmark]
-    public object Evaluate_NullCondition_DoesNotMatch()
-    {
+    public object Evaluate_NullCondition_DoesNotMatch() {
         return Evaluator.Evaluate(PassingCapability, NullRule);
     }
 
     [Benchmark]
-    public object Evaluate_PropertyChain_FirstConditionMatches()
-    {
+    public object Evaluate_PropertyChain_FirstConditionMatches() {
         return Evaluator.Evaluate(FailingCapability, PropertyChain);
     }
 
     [Benchmark]
-    public object Evaluate_PropertyChain_LastConditionMatches()
-    {
+    public object Evaluate_PropertyChain_LastConditionMatches() {
         return Evaluator.Evaluate(LargeVolumeCapability, PropertyChain);
     }
 
     [Benchmark]
-    public object Evaluate_PropertyChain_NoConditionMatches()
-    {
+    public object Evaluate_PropertyChain_NoConditionMatches() {
         return Evaluator.Evaluate(MiddleVolumeCapability, PropertyChain);
     }
 
     [Benchmark]
-    public object Evaluate_TenRules_NoIssues()
-    {
+    public object Evaluate_TenRules_NoIssues() {
         return Evaluator.Evaluate(PassingCapability, TenRulesNoIssues);
     }
 
     [Benchmark]
-    public object Evaluate_TenRules_OneError()
-    {
+    public object Evaluate_TenRules_OneError() {
         return Evaluator.Evaluate(FailingCapability, TenRulesOneError);
     }
 
     [Benchmark]
-    public object Evaluate_AndGroup_AllPass()
-    {
+    public object Evaluate_AndGroup_AllPass() {
         return Evaluator.Evaluate(PassingCapability, AndGroupAllPass);
     }
 
     [Benchmark]
-    public object Evaluate_AndGroup_MultipleIssues()
-    {
+    public object Evaluate_AndGroup_MultipleIssues() {
         return Evaluator.Evaluate(FailingCapability, AndGroupAllPass);
     }
 
     [Benchmark]
-    public object Evaluate_OrGroup_FirstPasses()
-    {
+    public object Evaluate_OrGroup_FirstPasses() {
         return Evaluator.Evaluate(PassingCapability, OrGroupFirstPasses);
     }
 
     [Benchmark]
-    public object Evaluate_OrGroup_AllFail()
-    {
+    public object Evaluate_OrGroup_AllFail() {
         return Evaluator.Evaluate(FailingCapability, OrGroupFirstPasses);
     }
 
     [Benchmark]
-    public object Evaluate_NestedGroups()
-    {
+    public object Evaluate_NestedGroups() {
         return Evaluator.Evaluate(FailingCapability, NestedGroups);
     }
 
-    private static Requirement<BenchmarkCapability> BuildRules(int count, RequirementSeverity severity)
-    {
+    private static Requirement<BenchmarkCapability> BuildRules(int count, RequirementSeverity severity) {
         var builder = Requirement.For<BenchmarkCapability>();
 
-        for (var i = 0; i < count; i++)
-        {
+        for (var i = 0; i < count; i++) {
             var expected = i;
             builder.Rule(
                 $"IndexIs{expected}",

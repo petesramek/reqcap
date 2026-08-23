@@ -3,8 +3,7 @@ namespace ReqCap.Groups;
 /// <summary>
 /// Defines logical group operators.
 /// </summary>
-public enum LogicalOperator
-{
+public enum LogicalOperator {
     /// <summary>
     /// All child rules or groups are evaluated.
     /// </summary>

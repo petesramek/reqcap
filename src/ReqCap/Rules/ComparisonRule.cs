@@ -1,8 +1,8 @@
-using System.Linq.Expressions;
+namespace ReqCap.Rules;
+
 using ReqCap.Abstractions;
 using ReqCap.Results;
-
-namespace ReqCap.Rules;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Represents a single issue condition for a capability property.
@@ -10,8 +10,7 @@ namespace ReqCap.Rules;
 /// <typeparam name="TCapability">The capability type.</typeparam>
 /// <typeparam name="TProperty">The property type.</typeparam>
 public sealed class ComparisonRule<TCapability, TProperty> : IRule<TCapability>
-    where TCapability : ICapability
-{
+    where TCapability : ICapability {
     private readonly PropertyRuleChain<TCapability, TProperty> _chain;
 
     /// <summary>
@@ -31,8 +30,7 @@ public sealed class ComparisonRule<TCapability, TProperty> : IRule<TCapability>
         RequirementSeverity severity,
         string? ruleName = null,
         string? ruleAlias = null,
-        string? message = null)
-    {
+        string? message = null) {
         _chain = new PropertyRuleChain<TCapability, TProperty>(expression);
         _chain.Add(new PropertyCondition<TProperty>(
             @operator,
@@ -44,8 +42,7 @@ public sealed class ComparisonRule<TCapability, TProperty> : IRule<TCapability>
     }
 
     /// <inheritdoc />
-    public EvaluationResult Evaluate(TCapability capability)
-    {
+    public EvaluationResult Evaluate(TCapability capability) {
         return _chain.Evaluate(capability);
     }
 }

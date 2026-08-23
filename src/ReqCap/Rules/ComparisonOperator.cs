@@ -3,8 +3,7 @@ namespace ReqCap.Rules;
 /// <summary>
 /// Defines comparison operators used by built-in issue conditions.
 /// </summary>
-public enum ComparisonOperator
-{
+public enum ComparisonOperator {
     /// <summary>
     /// Matches when the actual value is greater than or equal to the expected value.
     /// </summary>
